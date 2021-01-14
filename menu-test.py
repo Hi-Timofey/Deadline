@@ -30,6 +30,7 @@ if __name__ == '__main__':
     #                      ('Easy', 2)],
     #     onchange=set_difficulty)
 
+    menu.add_button('Scores', )
     menu.add_button('Quit', pygame_menu.events.EXIT)
 
     while True:
