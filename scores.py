@@ -104,6 +104,14 @@ class Scores():
         self._stop()
         return response
 
+
+    def add_score(self, score, date):
+         self._start()
+         self.cur.execute(f"insert into scores values({int(score)}, '{date}')")
+         self.db_connect.commit()
+         self._stop()
+
+
     def delete_all_scores(self):
         self._start()
 
