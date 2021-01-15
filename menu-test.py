@@ -1,12 +1,26 @@
+# -*- coding: utf-8 -*-
 import pygame
 import pygame_menu
+from scores import Scores
+from utils import *
+
 
 pygame.init()
-surface = pygame.display.set_mode((600, 600))
+
+FPS = 60
+display_info = pygame.display.Info()
+
+sound = None
+main_menu = None
+surface = pygame.display.set_mode((1000, 1000))
+
+background_image = pygame_menu.baseimage.BaseImage(
+    image_path=get_data_path('background.png', 'img'))
+
 
 
 def draw_background():
-    pass
+    background_image.draw(surface)
 
 
 def set_difficulty(value, difficulty):
@@ -16,12 +30,10 @@ def set_difficulty(value, difficulty):
 def start_the_game():
     pass
 
-
-if __name__ == '__main__':
-
-    menu = pygame_menu.Menu(600, 600, 'Fire Dungeon',
-                            theme=pygame_menu.themes.THEME_BLUE)
-
+def main():
+    main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
+                                 theme=pygame_menu.themes.THEME_BLUE)
+    scores_menu = Scores(1000, 1000)
     # menu.add_button('Play', start_the_game)
 
     # menu.add_text_input('Name :', default='John Doe')
@@ -30,8 +42,8 @@ if __name__ == '__main__':
     #                      ('Easy', 2)],
     #     onchange=set_difficulty)
 
-    menu.add_button('Scores', )
-    menu.add_button('Quit', pygame_menu.events.EXIT)
+    main_menu.add_button('Scores', scores_menu.menu)
+    main_menu.add_button('Quit', pygame_menu.events.EXIT)
 
     while True:
 
@@ -42,8 +54,9 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 exit()
 
-        if menu.is_enabled():
-            menu.update(events)
-            menu.draw(surface)
+        main_menu.mainloop(surface, draw_background, fps_limit=FPS)
 
         pygame.display.update()
+
+if __name__ == '__main__':
+    main()
