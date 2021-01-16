@@ -11,13 +11,14 @@ FPS = 60
 display_info = pygame.display.Info()
 clock = pygame.time.Clock()
 
-sound = None
+
 main_menu = None
 surface = pygame.display.set_mode((1000, 1000))
 
 background_image = pygame_menu.baseimage.BaseImage(
     image_path=get_data_path('background.png', 'img'))
 
+pygame.mixer.init()
 
 
 def draw_background():
@@ -32,6 +33,9 @@ def start_the_game():
     pass
 
 def main():
+    pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
+    pygame.mixer.music.play(-1)
+
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=pygame_menu.themes.THEME_BLUE)
     scores_menu = Scores(1000, 1000)
