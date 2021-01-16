@@ -9,6 +9,7 @@ pygame.init()
 
 FPS = 60
 display_info = pygame.display.Info()
+clock = pygame.time.Clock()
 
 sound = None
 main_menu = None
