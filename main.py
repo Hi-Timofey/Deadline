@@ -3,6 +3,7 @@ import pygame
 import pygame_menu
 from scores import Scores
 from utils import *
+import fire_dungeon
 
 
 pygame.init()
@@ -30,7 +31,7 @@ def set_difficulty(value, difficulty):
 
 
 def start_the_game():
-    pass
+    fire_dungeon.main()
 
 def main():
     pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
@@ -39,7 +40,7 @@ def main():
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=pygame_menu.themes.THEME_BLUE)
     scores_menu = Scores(1000, 1000)
-    # menu.add_button('Play', start_the_game)
+    main_menu.add_button('Play', start_the_game)
 
     # menu.add_text_input('Name :', default='John Doe')
     # menu.add_selector(
