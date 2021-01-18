@@ -3,7 +3,6 @@ import pygame
 import pygame_menu
 from scores import Scores
 from utils import *
-import fire_dungeon
 
 
 pygame.init()
@@ -12,6 +11,8 @@ FPS = 60
 display_info = pygame.display.Info()
 clock = pygame.time.Clock()
 
+window_size = w_width, w_height = 1000, 1000
+game_size = g_width, g_height = 800, 800
 
 main_menu = None
 surface = pygame.display.set_mode((1000, 1000))
@@ -26,12 +27,23 @@ def draw_background():
     background_image.draw(surface)
 
 
-def set_difficulty(value, difficulty):
-    pass
+def start_end_credits():
+    from credits import main as show_credits
+    credit_list = [
+        "CREDITS - The Departed",
+        " ",
+        "Leonardo DiCaprio - Billy",
+        "Matt Damon - Colin Sullivan",
+        "Jack Nicholson - Frank Costello",
+        "Mark Wahlberg - Dignam",
+        "Martin Sheen - Queenan"]
+    show_credits(credit_list)
 
 
 def start_the_game():
+    import fire_dungeon
     fire_dungeon.main()
+
 
 def main():
     pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
@@ -49,6 +61,7 @@ def main():
     #     onchange=set_difficulty)
 
     main_menu.add_button('Scores', scores_menu.menu)
+    main_menu.add_button('About', start_end_credits)
     main_menu.add_button('Quit', pygame_menu.events.EXIT)
 
     while True:
@@ -63,6 +76,7 @@ def main():
         main_menu.mainloop(surface, draw_background, fps_limit=FPS)
 
         pygame.display.update()
+
 
 if __name__ == '__main__':
     main()
