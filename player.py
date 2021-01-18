@@ -29,11 +29,15 @@ ANIMATION_JUMP = [(get_data_path('j.png','img'), 1)]
 ANIMATION_STAY = [(get_data_path('0.png','img'), 1)]
 
 class Player(sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, gravity=True):
         sprite.Sprite.__init__(self)
         self.xvel = 0  # скорость перемещения. 0 - стоять на месте
-        self.startX = x  # Начальная позиция Х, пригодится когда будем переигрывать уровень
-        self.startY = y
+        self.start_x = x  # Начальная позиция Х, пригодится когда будем переигрывать уровень
+        self.start_y = y
+
+        # Set up gravity value whether player need it or not
+        self.gravity = gravity
+
         self.image = Surface((WIDTH, HEIGHT))
         self.image.fill(Color(COLOR))
         self.image.set_colorkey(Color(COLOR))  # делаем фон прозрачным
@@ -96,7 +100,8 @@ class Player(sprite.Sprite):
                 self.image.fill(Color(COLOR))
                 self.boltAnimStay.blit(self.image, (0, 0))
         if not self.onGround:
-            self.yvel += GRAVITY
+            if self.gravity:
+                self.yvel += GRAVITY
 
         self.onGround = False  # Мы не знаем, когда мы на земле((
         self.rect.y += self.yvel
