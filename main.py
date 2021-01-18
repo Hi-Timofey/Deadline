@@ -28,7 +28,7 @@ def draw_background():
 
 
 def start_end_credits():
-    from credits import main as show_credits
+    from credits import Credits
     credit_list = [
         "CREDITS - The Departed",
         " ",
@@ -37,7 +37,8 @@ def start_end_credits():
         "Jack Nicholson - Frank Costello",
         "Mark Wahlberg - Dignam",
         "Martin Sheen - Queenan"]
-    show_credits(credit_list)
+    c = Credits(credit_list, surface)
+    c.main()
 
 
 def start_the_game():
