@@ -37,7 +37,7 @@ def start_end_credits():
         "Jack Nicholson - Frank Costello",
         "Mark Wahlberg - Dignam",
         "Martin Sheen - Queenan"]
-    c = Credits(credit_list, surface)
+    c = Credits(credit_list, surface, 'Sigma Five.otf')
     c.main()
 
 

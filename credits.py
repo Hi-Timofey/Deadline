@@ -1,15 +1,19 @@
 #!/usr/bin/python
 import pygame
 from pygame.locals import *
+from utils import get_font_path
 
 
 
 class Credits():
 
-    def __init__(self, credit_list,surface, font='Arial'):
+    def __init__(self, credit_list,surface, font=None):
         self.credit_list = credit_list
         self.surface = surface
-        self.font = pygame.font.SysFont(font, 40)
+        if font is None:
+            self.font = pygame.font.SysFont('Arial', 40)
+        else:
+            self.font = pygame.font.Font(get_font_path(font),40)
         self.run = True
         self.clock = pygame.time.Clock()
 
