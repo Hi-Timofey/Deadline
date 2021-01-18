@@ -20,7 +20,7 @@ class Credits():
         # we render the text once, since it's easier to work with surfaces
         # also, font rendering is a performance killer
         for i, line in enumerate(self.credit_list):
-            s = self.font.render(line, 1, (10, 10, 10))
+            s = self.font.render(line, 1, (240,240,240))
             # we also create a Rect for each Surface.
             # whenever you use rects with surfaces, it may be a good idea to use sprites instead
             # we give each rect the correct starting position
@@ -34,7 +34,7 @@ class Credits():
                 if e.type == QUIT or e.type == KEYDOWN and e.key == pygame.K_ESCAPE:
                     return
 
-            self.surface.fill((255, 255, 255))
+            self.surface.fill((0,0, 0))
 
             for r, s in texts:
                 # now we just move each rect by one pixel each frame
