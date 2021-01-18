@@ -74,7 +74,7 @@ class Player(sprite.Sprite):
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
 
-    def update(self, left, right, up, platforms):
+    def update(self, left, right, up, down, platforms):
         if left:
             self.xvel = -MOVE_SPEED  # Лево = x- n
             self.image.fill(Color(COLOR))
@@ -99,6 +99,11 @@ class Player(sprite.Sprite):
             if not up:
                 self.image.fill(Color(COLOR))
                 self.boltAnimStay.blit(self.image, (0, 0))
+
+        # Moving down logic
+        if not self.gravity:
+            pass
+
         if not self.onGround:
             if self.gravity:
                 self.yvel += GRAVITY

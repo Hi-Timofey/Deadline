@@ -34,14 +34,16 @@ def camera_configure(camera, target_rect):
 class FireDungeon():
 
     def __init__(self):
-        self.player = Player(55, 55, True)  # создаем героя по (x,y) координатам
+        # создаем героя по (x,y) координатам
+        self.player = Player(55, 55, True)
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
 
     def run_game(self):
         # Default - player is NOT moving anywhere
         left = right = False
-        down = up = False
+        up = False
+        down = True
 
         platforms = []  # то, во что мы будем врезаться или опираться
         self.entities.add(self.player)
@@ -106,25 +108,31 @@ class FireDungeon():
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:
                     pygame.quit()
+
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True
                 if e.type == KEYDOWN and e.key == K_RIGHT:
                     right = True
                 if e.type == KEYDOWN and e.key == K_UP:
                     up = True
+                if e.type == KEYDOWN and e.key == K_DOWN:
+                    down = True
                 if e.type == KEYUP and e.key == K_UP:
                     up = False
                 if e.type == KEYUP and e.key == K_RIGHT:
                     right = False
                 if e.type == KEYUP and e.key == K_LEFT:
                     left = False
+                if e.type == KEYUP and e.key == K_DOWN:
+                    down = True
+
             # Каждую итерацию необходимо всё перерисовывать
             screen.blit(bg, (0, 0))
 
             # hero.draw(screen)  # отображение
 
-            self.entities.update(left, right, up, platforms)
-            self.player.update(left, right, up,
+            self.entities.update(left, right, up, down, platforms)
+            self.player.update(left, right, up, down,
                                platforms)  # передвижение
             # центризируем камеру относительно персонажа
             camera.update(self.player)
