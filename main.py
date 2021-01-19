@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pygame
 import pygame_menu
-from scores import Scores
+from db_related import Scores
 from utils import *
 
 
@@ -68,6 +68,8 @@ def main():
         for event in events:
             if event.type == pygame.QUIT:
                 exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                pass
 
         main_menu.mainloop(surface, draw_background, fps_limit=FPS)
 

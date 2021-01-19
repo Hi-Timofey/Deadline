@@ -4,7 +4,7 @@ import pygame
 import pygame_menu
 
 
-class Scores():
+class FireDB():
 
     def __init__(self, width, height):
         self.width = width
@@ -17,45 +17,16 @@ class Scores():
             self.create_default_base()
 
         self.create_menu()
-
-    def create_menu(self):
-        data = self.get_all_data(ordered=True)
-        self.menu = pygame_menu.Menu(
-            self.height,
-            self.width,
-            'Dungeon Scores ',
-            theme=pygame_menu.themes.THEME_BLUE,
-            columns=2,
-            onclose=pygame_menu.events.EXIT,
-            rows=1 + len(data))
-
-        self.menu.add_label('Score', max_char=-1, font_size=28)
-        for d in data:
-            self.menu.add_label(d[0], max_char=-1, font_size=16)
-
-        self.menu.add_label('Data', max_char=-1, font_size=28)
-        for d in data:
-            self.menu.add_label(d[1], max_char=-1, font_size=16)
-
-    def menu_off(self):
-        self.menu.disable()
-
-    def menu_on(self):
-        self.menu.enable()
-
-    def is_enabled(self):
-        return self.menu.is_enabled()
-
-    def update(self, events):
-        return self.menu.update(events)
-
-    def draw(self, surface):
-        return self.menu.draw(surface)
-
     # --- DATABASE ---
 
     def create_default_table(self):
-        '''Creates the default database with "Files" table'''
+        '''
+        Creates the default database.
+
+        Creates db with SCORES table which contains
+        player scores and dates of them ; SAVES with
+        player not ended games.
+        '''
 
         self._start()
         query_table = '''
@@ -66,6 +37,13 @@ class Scores():
 	PRIMARY KEY("score")
                 );
         '''
+        # query_table += '''
+        # CREATE TABLE "scores" (
+	# "id"	INTEGER NOT NULL UNIQUE,
+	# "score"	INTEGER NOT NULL DEFAULT 0,
+	# "data"	TEXT NOT NULL DEFAULT '01.01.2021 13:00',
+	# PRIMARY KEY("score")
+        #         );'''
         self.cur.execute(query_table)
         self.db_connect.commit()
         self._stop()
@@ -104,13 +82,11 @@ class Scores():
         self._stop()
         return response
 
-
     def add_score(self, score, date):
-         self._start()
-         self.cur.execute(f"insert into scores values({int(score)}, '{date}')")
-         self.db_connect.commit()
-         self._stop()
-
+        self._start()
+        self.cur.execute(f"insert into scores values({int(score)}, '{date}')")
+        self.db_connect.commit()
+        self._stop()
 
     def delete_all_scores(self):
         self._start()
@@ -120,6 +96,43 @@ class Scores():
 
         self.db_connect.commit()
         self._stop()
+
+
+class Scores(FireDB):
+
+    def create_menu(self):
+        data = self.get_all_data(ordered=True)
+        self.menu = pygame_menu.Menu(
+            self.height,
+            self.width,
+            'Dungeon Scores ',
+            theme=pygame_menu.themes.THEME_BLUE,
+            columns=2,
+            onclose=pygame_menu.events.EXIT,
+            rows=1 + len(data))
+
+        self.menu.add_label('Score', max_char=-1, font_size=28)
+        for d in data:
+            self.menu.add_label(d[0], max_char=-1, font_size=16)
+
+        self.menu.add_label('Data', max_char=-1, font_size=28)
+        for d in data:
+            self.menu.add_label(d[1], max_char=-1, font_size=16)
+
+    def menu_off(self):
+        self.menu.disable()
+
+    def menu_on(self):
+        self.menu.enable()
+
+    def is_enabled(self):
+        return self.menu.is_enabled()
+
+    def update(self, events):
+        return self.menu.update(events)
+
+    def draw(self, surface):
+        return self.menu.draw(surface)
 
 
 if __name__ == '__main__':
