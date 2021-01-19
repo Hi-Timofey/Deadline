@@ -2,14 +2,18 @@ import pyganim
 from pygame import *
 from utils import *
 
+# Player basic variables
 MOVE_SPEED = 7
-WIDTH = 22
-HEIGHT = 32
-COLOR = "#888888"
+PLAYER_WIDTH = 22
+PLAYER_HEIGHT = 32
+PLAYER_COLOR = "#888888"
 
+# Gravity constants
 JUMP_POWER = 10
-GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
-ANIMATION_DELAY = 1  # скорость смены кадров
+GRAVITY = 0.35
+
+# Animation constants
+ANIMATION_DELAY = 1
 
 ANIMATION_RIGHT = [(get_data_path('r1.png', 'img')),
                    (get_data_path('r2.png', 'img')),
@@ -32,29 +36,34 @@ ANIMATION_STAY = [(get_data_path('0.png', 'img'), 1)]
 class Player(sprite.Sprite):
     def __init__(self, x, y, gravity=True):
         sprite.Sprite.__init__(self)
-        self.xvel = 0  # скорость перемещения. 0 - стоять на месте
-        self.start_x = x  # Начальная позиция Х, пригодится когда будем переигрывать уровень
+        # Starting coordinates
+        self.start_x = x
         self.start_y = y
-
-        # Set up gravity value whether player need it or not
         self.gravity = gravity
 
-        self.image = Surface((WIDTH, HEIGHT))
-        self.image.fill(Color(COLOR))
-        self.image.set_colorkey(Color(COLOR))  # делаем фон прозрачным
-        self.rect = Rect(x, y, WIDTH, HEIGHT)  # прямоугольный объект
-        self.yvel = 0  # скорость вертикального перемещения
-        if gravity:
-            self.onGround = not gravity  # На земле ли я?
+        # Setting up basic speed
+        self.xvel = 0
+        self.yvel = 0
 
-        self.image.set_colorkey(Color(COLOR))  # делаем фон прозрачным
-        #        Анимация движения вправо
+        # Set up gravity value whether player need it or not
+        if gravity:
+            self.on_ground = not gravity
+
+        # Setting image of the player
+        self.image = Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
+        self.image.fill(Color(PLAYER_COLOR))
+        self.image.set_colorkey(Color(PLAYER_COLOR))
+        self.rect = Rect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
+        self.image.set_colorkey(Color(PLAYER_COLOR))
+
+        # Animation right
         boltAnim = []
         for anim in ANIMATION_RIGHT:
             boltAnim.append((anim, ANIMATION_DELAY))
         self.boltAnimRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimRight.play()
-        #        Анимация движения влево
+
+        # Animation left
         boltAnim = []
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
@@ -77,16 +86,25 @@ class Player(sprite.Sprite):
             boltAnim.append((anim, ANIMATION_DELAY))
 
     def update(self, left, right, up, down, platforms):
+        '''
+        Updating player sprite on the screen.
+
+        Func updating player coordinates and sprite by
+        checking where he is going (left, right, down, up)
+        and setiing up speed by OX and OY.
+
+        Also, separated animations for each directions of the player.
+        '''
         if left:
             self.xvel = -MOVE_SPEED  # Лево = x- n
-            self.image.fill(Color(COLOR))
+            self.image.fill(Color(PLAYER_COLOR))
             if up:  # для прыжка влево есть отдельная анимация
                 self.boltAnimJumpLeft.blit(self.image, (0, 0))
             else:
                 self.boltAnimLeft.blit(self.image, (0, 0))
         if right:
             self.xvel = MOVE_SPEED  # Право = x + n
-            self.image.fill(Color(COLOR))
+            self.image.fill(Color(PLAYER_COLOR))
             if up:
                 self.boltAnimJumpRight.blit(self.image, (0, 0))
             else:
@@ -94,44 +112,55 @@ class Player(sprite.Sprite):
 
         if self.gravity:
             if up:
-                if self.onGround:  # прыгаем, только когда можем оттолкнуться от земли
+                if self.on_ground:  # прыгаем, только когда можем оттолкнуться от земли
                     self.yvel = -JUMP_POWER
-                self.image.fill(Color(COLOR))
+                self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
             if not (left or right):  # стоим, когда нет указаний идти
                 self.xvel = 0
                 if not up:
-                    self.image.fill(Color(COLOR))
+                    self.image.fill(Color(PLAYER_COLOR))
                     self.boltAnimStay.blit(self.image, (0, 0))
-            if not self.onGround:
+            if not self.on_ground:
                 self.yvel += GRAVITY
         else:
+            # In non-gravity mode logic of UP and DOWN same as
+            # fot the RIGHT and LEFT, but on OY.
             if up:
                 self.yvel = -MOVE_SPEED
-                self.image.fill(Color(COLOR))
+                self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
             if down:
                 self.yvel = MOVE_SPEED
-                self.image.fill(Color(COLOR))
+                self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
-            if not (up or down or left or right):  # стоим, когда нет указаний идти
+            if not (up or down or left or right):
                 self.xvel = 0
                 self.yvel = 0
-                self.image.fill(Color(COLOR))
+                self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimStay.blit(self.image, (0, 0))
 
+        # Don't know whether we are on the floor or not
         if self.gravity:
-            self.onGround = False  # Мы не знаем, когда мы на земле((
+            self.on_ground = False
+
+        # Moving sprite based on speed and platforms
         self.rect.y += self.yvel
         self.collide(0, self.yvel, platforms)
 
-        self.rect.x += self.xvel  # переносим свои положение на xvel
+        self.rect.x += self.xvel
         self.collide(self.xvel, 0, platforms)
 
-    def draw(self, screen):  # Выводим себя на экран
+    def draw(self, screen):
+        ''' Drawing player on the screen.
+        '''
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def collide(self, xvel, yvel, platforms):
+        '''Function that checks if player reached the platforms.
+
+        If player coordinates + speed is matches that he would
+        run in wall, that function stops him (include logic of gravity)'''
         for p in platforms:
             if sprite.collide_rect(
                     self, p):  # если есть пересечение платформы с игроком
@@ -143,7 +172,7 @@ class Player(sprite.Sprite):
                 if yvel > 0:  # если падает вниз
                     self.rect.bottom = p.rect.top  # то не падает вниз
                     if self.gravity:
-                        self.onGround = True  # и становится на что-то твердое
+                        self.on_ground = True  # и становится на что-то твердое
                         self.yvel = 0  # и энергия падения пропадает
 
                 if yvel < 0:  # если движется вверх
