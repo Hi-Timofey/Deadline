@@ -35,15 +35,16 @@ class FireDungeon():
 
     def __init__(self):
         # создаем героя по (x,y) координатам
-        self.player = Player(55, 55, True)
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
+        self.run = True
 
-    def run_game(self):
+    def run_game(self, gravity):
         # Default - player is NOT moving anywhere
+        self.player = Player(55, 55, gravity)
         left = right = False
         up = False
-        down = True
+        down = gravity
 
         platforms = []  # то, во что мы будем врезаться или опираться
         self.entities.add(self.player)
@@ -103,11 +104,12 @@ class FireDungeon():
             camera_configure,
             total_level_width,
             total_level_height)
-        while True:  # Основной цикл программы
+
+        while self.run:  # Основной цикл программы
             self.timer.tick(60)
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:
-                    pygame.quit()
+                    self.run = False
 
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True
@@ -139,8 +141,8 @@ class FireDungeon():
             for e in self.entities:
                 screen.blit(e.image, camera.apply(e))
             pygame.display.update()  # обновление и вывод всех изменений на экран
-
+        return self.run
 
 if __name__ == "__main__":
     fd = FireDungeon()
-    fd.run_game()
+    fd.run_game(gravity=False)
