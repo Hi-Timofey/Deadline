@@ -11,7 +11,7 @@ FPS = 60
 display_info = pygame.display.Info()
 clock = pygame.time.Clock()
 
-window_size = w_width, w_height = 1000, 1000
+window_size = window_width, window_height = 1000, 1000
 game_size = g_width, g_height = 800, 800
 
 main_menu = None
@@ -43,7 +43,8 @@ def start_end_credits():
 
 def start_the_game():
     import fire_dungeon
-    fire_dungeon.main()
+    fd = fire_dungeon.FireDungeon()
+    fd.run_game(gravity=False)
 
 
 def main():
@@ -54,12 +55,6 @@ def main():
                                  theme=pygame_menu.themes.THEME_BLUE)
     scores_menu = Scores(1000, 1000)
     main_menu.add_button('Play', start_the_game)
-
-    # menu.add_text_input('Name :', default='John Doe')
-    # menu.add_selector(
-    #     'Difficulty :', [('Hard', 1),
-    #                      ('Easy', 2)],
-    #     onchange=set_difficulty)
 
     main_menu.add_button('Scores', scores_menu.menu)
     main_menu.add_button('About', start_end_credits)

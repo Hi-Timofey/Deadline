@@ -2,13 +2,13 @@ import pygame
 from pygame import *
 from utils import *
 from camera import Camera
-
-# Объявляем переменные
 from blocks import Platform
 from player import Player
 
-WIN_WIDTH = 800  # Ширина создаваемого окна
-WIN_HEIGHT = 600  # Высота
+
+# Window size
+WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 800, 600
+
 # Группируем ширину и высоту в одну переменную
 DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 BACKGROUND_COLOR = "#004400"
@@ -18,35 +18,52 @@ PLATFORM_COLOR = "#FF6262"
 
 
 def camera_configure(camera, target_rect):
-    l, t, _, _ = target_rect
-    _, _, w, h = camera
-    l, t = -l+WIN_WIDTH / 2, -t+WIN_HEIGHT / 2
+    '''
+        Creating Rect for moving camera
+    '''
+    left, top, _, _ = target_rect
+    _, _, width, height = camera
+    left, top = -left+WIN_WIDTH / 2, -top+WIN_HEIGHT / 2
 
-    l = min(0, l)                           # Не движемся дальше левой границы
-    l = max(-(camera.width-WIN_WIDTH), l)   # Не движемся дальше правой границы
-    # Не движемся дальше нижней границы
-    t = max(-(camera.height-WIN_HEIGHT), t)
-    t = min(0, t)                           # Не движемся дальше верхней границы
+    # Left walls
+    left = min(0, left)
 
-    return Rect(l, t, w, h)
+    # Right walls
+    left = max(-(camera.width-WIN_WIDTH), left)
+
+    # Top walls
+    top = max(-(camera.height-WIN_HEIGHT), top)
+    top = min(0, top)
+
+    return Rect(left, top, width, height)
 
 
 class FireDungeon():
 
     def __init__(self):
-        # создаем героя по (x,y) координатам
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
 
     def run_game(self, gravity):
+        '''
+            Main cycle of the game.
+        '''
+        # Initialize pygame for this level
+        screen = pygame.display.set_mode(WIN_SIZE)
+        pygame.display.set_caption("Fire Dungeon")
+        bg = Surface(WIN_SIZE)
+        bg.fill(Color(BACKGROUND_COLOR))
+
         # Default - player is NOT moving anywhere
         self.player = Player(55, 55, gravity)
+        # Directions of the player
         left = right = False
         up = False
         down = gravity
 
-        platforms = []  # то, во что мы будем врезаться или опираться
+        # Level generating
+        platforms = []
         self.entities.add(self.player)
         level = [
             "----------------------------------",
@@ -73,17 +90,13 @@ class FireDungeon():
             "-                                -",
             "-                                -",
             "----------------------------------"]
-        pygame.init()  # Инициация PyGame, обязательная строчка
-        screen = pygame.display.set_mode(DISPLAY)  # Создаем окошко
-        pygame.display.set_caption("Fire Dungeon")  # Пишем в шапку
-        bg = Surface((WIN_WIDTH, WIN_HEIGHT))  # Создание видимой поверхности
-        # будем использовать как фон
-        # Заливаем поверхность сплошным цветом
-        bg.fill(Color(BACKGROUND_COLOR))
+
+        # Image for platforms
         platform_img = image.load(
             get_data_path(
                 "wall_64x64_1.png",
                 'img')).convert()
+
         x = y = 0  # координаты
         seed = 0
         for row in level:  # вся строка
@@ -96,6 +109,7 @@ class FireDungeon():
                 x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
             y += PLATFORM_HEIGHT  # то же самое и с высотой
             x = 0  # на каждой новой строчке начинаем с нуля
+
         # Высчитываем фактическую ширину уровня
         total_level_width = len(level[0]) * PLATFORM_WIDTH
         total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
@@ -128,20 +142,22 @@ class FireDungeon():
                 if e.type == KEYUP and e.key == K_DOWN:
                     down = False
 
-            # Каждую итерацию необходимо всё перерисовывать
+            # First - backgorund drawing
             screen.blit(bg, (0, 0))
 
-            # hero.draw(screen)  # отображение
-
+            # Next - drawing objects
             self.entities.update(left, right, up, down, platforms)
-            self.player.update(left, right, up, down,
-                               platforms)  # передвижение
-            # центризируем камеру относительно персонажа
+            self.player.update(
+                left, right, up, down, platforms)
+
+            # Centralize camera on player
             camera.update(self.player)
             for e in self.entities:
                 screen.blit(e.image, camera.apply(e))
-            pygame.display.update()  # обновление и вывод всех изменений на экран
+
+            pygame.display.update()
         return self.run
+
 
 if __name__ == "__main__":
     fd = FireDungeon()
