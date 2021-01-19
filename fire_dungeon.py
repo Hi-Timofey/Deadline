@@ -113,7 +113,7 @@ class FireDungeon():
         # Высчитываем фактическую ширину уровня
         total_level_width = len(level[0]) * PLATFORM_WIDTH
         total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
-
+        running = False
         camera = Camera(
             camera_configure,
             total_level_width,
@@ -142,13 +142,18 @@ class FireDungeon():
                 if e.type == KEYUP and e.key == K_DOWN:
                     down = False
 
+
+                if e.type == KEYDOWN and e.key == K_LSHIFT:
+                    running = True
+                if e.type == KEYUP and e.key == K_LSHIFT:
+                    running = False
             # First - backgorund drawing
             screen.blit(bg, (0, 0))
 
             # Next - drawing objects
-            self.entities.update(left, right, up, down, platforms)
+            self.entities.update(left, right, up, down, platforms, running)
             self.player.update(
-                left, right, up, down, platforms)
+                left, right, up, down, platforms,running)
 
             # Centralize camera on player
             camera.update(self.player)
