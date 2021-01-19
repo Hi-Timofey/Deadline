@@ -124,3 +124,5 @@ if __name__ == '__main__':
                 if str(level[y - 1][x + 1]) == '0' or str(level[y - 1][x + 1]) == ' ':
                     level[y - 1][x + 1] = '!'
     show_matrix(level)
+
+def restruct(level):

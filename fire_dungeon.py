@@ -4,7 +4,7 @@ from utils import *
 from camera import Camera
 from blocks import Platform
 from player import Player
-
+from create_level import create_level
 
 # Window size
 WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 800, 600
@@ -23,16 +23,16 @@ def camera_configure(camera, target_rect):
     '''
     left, top, _, _ = target_rect
     _, _, width, height = camera
-    left, top = -left+WIN_WIDTH / 2, -top+WIN_HEIGHT / 2
+    left, top = -left + WIN_WIDTH / 2, -top + WIN_HEIGHT / 2
 
     # Left walls
     left = min(0, left)
 
     # Right walls
-    left = max(-(camera.width-WIN_WIDTH), left)
+    left = max(-(camera.width - WIN_WIDTH), left)
 
     # Top walls
-    top = max(-(camera.height-WIN_HEIGHT), top)
+    top = max(-(camera.height - WIN_HEIGHT), top)
     top = min(0, top)
 
     return Rect(left, top, width, height)
@@ -56,7 +56,7 @@ class FireDungeon():
         bg.fill(Color(BACKGROUND_COLOR))
 
         # Default - player is NOT moving anywhere
-        self.player = Player(55, 55, gravity)
+        self.player = Player(64, 64, gravity)
         # Directions of the player
         left = right = False
         up = False
@@ -65,31 +65,7 @@ class FireDungeon():
         # Level generating
         platforms = []
         self.entities.add(self.player)
-        level = [
-            "----------------------------------",
-            "-                                -",
-            "-                       --       -",
-            "--                               -",
-            "-            --                  -",
-            "-    -       -                   -",
-            "--                               -",
-            "-                                -",
-            "-                   ----     --- -",
-            "-                                -",
-            "--       -   -                   -",
-            "-    -                           -",
-            "-                            --- -",
-            "-                                -",
-            "-                                -",
-            "-      ---                       -",
-            "-                                -",
-            "-   -------         ----         -",
-            "-                                -",
-            "-                         -      -",
-            "-                            --  -",
-            "-                                -",
-            "-                                -",
-            "----------------------------------"]
+        level = create_level(31, 31, 1)
 
         # Image for platforms
         platform_img = image.load(
@@ -102,7 +78,7 @@ class FireDungeon():
         for row in level:  # вся строка
             for col in row:  # каждый символ
                 seed += 1
-                if col == "-":
+                if col == "#":
                     pf = Platform(x, y, platform_img)
                     self.entities.add(pf)
                     platforms.append(pf)
@@ -142,7 +118,6 @@ class FireDungeon():
                 if e.type == KEYUP and e.key == K_DOWN:
                     down = False
 
-
                 if e.type == KEYDOWN and e.key == K_LSHIFT:
                     running = True
                 if e.type == KEYUP and e.key == K_LSHIFT:
@@ -153,7 +128,7 @@ class FireDungeon():
             # Next - drawing objects
             self.entities.update(left, right, up, down, platforms, running)
             self.player.update(
-                left, right, up, down, platforms,running)
+                left, right, up, down, platforms, running)
 
             # Centralize camera on player
             camera.update(self.player)
