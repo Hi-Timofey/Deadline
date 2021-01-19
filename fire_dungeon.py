@@ -126,7 +126,7 @@ class FireDungeon():
                 if e.type == KEYUP and e.key == K_LEFT:
                     left = False
                 if e.type == KEYUP and e.key == K_DOWN:
-                    down = True
+                    down = False
 
             # Каждую итерацию необходимо всё перерисовывать
             screen.blit(bg, (0, 0))

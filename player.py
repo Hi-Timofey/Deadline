@@ -9,24 +9,25 @@ COLOR = "#888888"
 
 JUMP_POWER = 10
 GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
-ANIMATION_DELAY = 1 # скорость смены кадров
+ANIMATION_DELAY = 1  # скорость смены кадров
 
-ANIMATION_RIGHT = [(get_data_path('r1.png','img')),
-            (get_data_path('r2.png','img')),
-            (get_data_path('r3.png','img')),
-            (get_data_path('r4.png','img')),
-            (get_data_path('r5.png','img'))]
+ANIMATION_RIGHT = [(get_data_path('r1.png', 'img')),
+                   (get_data_path('r2.png', 'img')),
+                   (get_data_path('r3.png', 'img')),
+                   (get_data_path('r4.png', 'img')),
+                   (get_data_path('r5.png', 'img'))]
 
-ANIMATION_LEFT = [(get_data_path('l1.png','img')),
-            (get_data_path('l2.png','img')),
-            (get_data_path('l3.png','img')),
-            (get_data_path('l4.png','img')),
-            (get_data_path('l5.png','img'))]
+ANIMATION_LEFT = [(get_data_path('l1.png', 'img')),
+                  (get_data_path('l2.png', 'img')),
+                  (get_data_path('l3.png', 'img')),
+                  (get_data_path('l4.png', 'img')),
+                  (get_data_path('l5.png', 'img'))]
 
-ANIMATION_JUMP_LEFT = [(get_data_path('jl.png','img'), 1)]
-ANIMATION_JUMP_RIGHT = [(get_data_path('jr.png','img'), 1)]
-ANIMATION_JUMP = [(get_data_path('j.png','img'), 1)]
-ANIMATION_STAY = [(get_data_path('0.png','img'), 1)]
+ANIMATION_JUMP_LEFT = [(get_data_path('jl.png', 'img'), 1)]
+ANIMATION_JUMP_RIGHT = [(get_data_path('jr.png', 'img'), 1)]
+ANIMATION_JUMP = [(get_data_path('j.png', 'img'), 1)]
+ANIMATION_STAY = [(get_data_path('0.png', 'img'), 1)]
+
 
 class Player(sprite.Sprite):
     def __init__(self, x, y, gravity=True):
@@ -43,7 +44,8 @@ class Player(sprite.Sprite):
         self.image.set_colorkey(Color(COLOR))  # делаем фон прозрачным
         self.rect = Rect(x, y, WIDTH, HEIGHT)  # прямоугольный объект
         self.yvel = 0  # скорость вертикального перемещения
-        self.onGround = False  # На земле ли я?
+        if gravity:
+            self.onGround = not gravity  # На земле ли я?
 
         self.image.set_colorkey(Color(COLOR))  # делаем фон прозрачным
         #        Анимация движения вправо
@@ -73,7 +75,6 @@ class Player(sprite.Sprite):
         self.boltAnimJump.play()
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
-
 
     def update(self, left, right, up, down, platforms):
         if self.gravity:
@@ -126,19 +127,20 @@ class Player(sprite.Sprite):
                 else:
                     self.boltAnimRight.blit(self.image, (0, 0))
             if up:
-                if self.onGround:  # прыгаем, только когда можем оттолкнуться от земли
-                    self.yvel = -JUMP_POWER
+                self.yvel = -MOVE_SPEED
                 self.image.fill(Color(COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
-            if not (left or right):  # стоим, когда нет указаний идти
+            if down:
+                self.yvel = MOVE_SPEED
+                self.image.fill(Color(COLOR))
+                self.boltAnimJump.blit(self.image, (0, 0))
+            if not (up or down or left or right):  # стоим, когда нет указаний идти
                 self.xvel = 0
-                if not up:
-                    self.image.fill(Color(COLOR))
-                    self.boltAnimStay.blit(self.image, (0, 0))
-            if not self.onGround:
-                self.yvel += GRAVITY
+                self.yvel = 0
+                self.image.fill(Color(COLOR))
+                self.boltAnimStay.blit(self.image, (0, 0))
 
-            self.onGround = False  # Мы не знаем, когда мы на земле((
+            # self.onGround = False  # Мы не знаем, когда мы на земле((
             self.rect.y += self.yvel
             self.collide(0, self.yvel, platforms)
 
@@ -146,11 +148,12 @@ class Player(sprite.Sprite):
             self.collide(self.xvel, 0, platforms)
 
     def draw(self, screen):  # Выводим себя на экран
-         screen.blit(self.image, (self.rect.x, self.rect.y))
+        screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def collide(self, xvel, yvel, platforms):
         for p in platforms:
-            if sprite.collide_rect(self, p):  # если есть пересечение платформы с игроком
+            if sprite.collide_rect(
+                    self, p):  # если есть пересечение платформы с игроком
 
                 if self.gravity:
                     if xvel > 0:  # если движется вправо
@@ -176,10 +179,9 @@ class Player(sprite.Sprite):
 
                     if yvel > 0:  # если падает вниз
                         self.rect.bottom = p.rect.top  # то не падает вниз
-                        self.onGround = True  # и становится на что-то твердое
-                        self.yvel = 0  # и энергия падения пропадает
+                        # self.onGround = True  # и становится на что-то твердое
+                        # self.yvel = 0  # и энергия падения пропадает
 
                     if yvel < 0:  # если движется вверх
                         self.rect.top = p.rect.bottom  # то не движется вверх
-                        self.yvel = 0  # и энергия прыжка пропадает
-
+                        # self.yvel = 0  # и энергия прыжка пропадает
