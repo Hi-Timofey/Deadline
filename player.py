@@ -3,10 +3,14 @@ from pygame import *
 from utils import *
 
 # Player basic variables
-MOVE_SPEED = 7
+MOVE_SPEED = 1
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 32
 PLAYER_COLOR = "#888888"
+
+MOVE_EXTRA_SPEED = 3 # Ускорение
+JUMP_EXTRA_POWER = 1 # дополнительная сила прыжка
+ANIMATION_SUPER_SPEED_DELAY = 1 # скорость смены кадров при ускорении
 
 # Gravity constants
 JUMP_POWER = 10
@@ -56,19 +60,26 @@ class Player(sprite.Sprite):
         self.rect = Rect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
         self.image.set_colorkey(Color(PLAYER_COLOR))
 
-        # Animation right
+        #        Анимация движения вправо
         boltAnim = []
+        boltAnimSuperSpeed = []
         for anim in ANIMATION_RIGHT:
             boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
         self.boltAnimRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimRight.play()
-
-        # Animation left
+        self.boltAnimRightSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimRightSuperSpeed.play()
+        #        Анимация движения влево
         boltAnim = []
+        boltAnimSuperSpeed = []
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
         self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
         self.boltAnimLeft.play()
+        self.boltAnimLeftSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimLeftSuperSpeed.play()
 
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
