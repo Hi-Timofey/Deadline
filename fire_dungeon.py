@@ -100,8 +100,16 @@ class FireDungeon():
             total_level_width,
             total_level_height)
 
+        fire_counter = 0
         while self.run:  # Основной цикл программы
+
             self.timer.tick(60)
+
+            fire_counter += 1
+            if fire_counter == 500:
+                print(f'Fire counter : {fire_counter}')
+                fire_counter = 0
+
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:
                     self.run = False
