@@ -2,9 +2,10 @@ import pygame
 from pygame import *
 from utils import *
 from camera import Camera
-from blocks import Platform
+from blocks import Platform, BlockDie
 from player import Player
-
+from create_level import create_level
+from fire import Fire, show_matrix
 
 # Window size
 WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 800, 600
@@ -15,6 +16,8 @@ BACKGROUND_COLOR = "#004400"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
+FIRE_START = [20, 10]
+
 
 
 def camera_configure(camera, target_rect):
@@ -23,16 +26,16 @@ def camera_configure(camera, target_rect):
     '''
     left, top, _, _ = target_rect
     _, _, width, height = camera
-    left, top = -left+WIN_WIDTH / 2, -top+WIN_HEIGHT / 2
+    left, top = -left + WIN_WIDTH / 2, -top + WIN_HEIGHT / 2
 
     # Left walls
     left = min(0, left)
 
     # Right walls
-    left = max(-(camera.width-WIN_WIDTH), left)
+    left = max(-(camera.width - WIN_WIDTH), left)
 
     # Top walls
-    top = max(-(camera.height-WIN_HEIGHT), top)
+    top = max(-(camera.height - WIN_HEIGHT), top)
     top = min(0, top)
 
     return Rect(left, top, width, height)
@@ -56,7 +59,7 @@ class FireDungeon():
         bg.fill(Color(BACKGROUND_COLOR))
 
         # Default - player is NOT moving anywhere
-        self.player = Player(55, 55, gravity)
+        self.player = Player(64, 64, gravity)
         # Directions of the player
         left = right = False
         up = False
@@ -65,47 +68,27 @@ class FireDungeon():
         # Level generating
         platforms = []
         self.entities.add(self.player)
-        level = [
-            "----------------------------------",
-            "-                                -",
-            "-                       --       -",
-            "--                               -",
-            "-            --                  -",
-            "-    -       -                   -",
-            "--                               -",
-            "-                                -",
-            "-                   ----     --- -",
-            "-                                -",
-            "--       -   -                   -",
-            "-    -                           -",
-            "-                            --- -",
-            "-                                -",
-            "-                                -",
-            "-      ---                       -",
-            "-                                -",
-            "-   -------         ----         -",
-            "-                                -",
-            "-                         -      -",
-            "-                            --  -",
-            "-                                -",
-            "-                                -",
-            "----------------------------------"]
-
+        level = create_level(31, 31, 1)
+        level[FIRE_START[0]][FIRE_START[1]] = "!"
         # Image for platforms
         platform_img = image.load(
             get_data_path(
                 "wall_64x64_1.png",
                 'img')).convert()
-
+        trap = image.load(get_data_path('ship.png', 'img')).convert_alpha()
         x = y = 0  # координаты
         seed = 0
         for row in level:  # вся строка
             for col in row:  # каждый символ
                 seed += 1
-                if col == "-":
+                if col == "#":
                     pf = Platform(x, y, platform_img)
                     self.entities.add(pf)
                     platforms.append(pf)
+                if col == "!":
+                    bd = BlockDie(x, y, trap)
+                    self.entities.add(bd)
+                    platforms.append(bd)
                 x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
             y += PLATFORM_HEIGHT  # то же самое и с высотой
             x = 0  # на каждой новой строчке начинаем с нуля
@@ -113,16 +96,41 @@ class FireDungeon():
         # Высчитываем фактическую ширину уровня
         total_level_width = len(level[0]) * PLATFORM_WIDTH
         total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
-
+        running = False
         camera = Camera(
             camera_configure,
             total_level_width,
             total_level_height)
-
+        fire_list_coords = [FIRE_START]
+        fire_counter = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
+            fire_counter += 1
+            y = 0
+            if fire_counter == 120:
+                print(fire_list_coords)
+                for y_new, x_new in fire_list_coords:
+                    f = Fire(x_new, y_new)
+                    f.update(level, fire_list_coords)
+                    print()
+                    print(fire_list_coords)
+                fire_counter = 0
+                for row in level:  # вся строка
+                    for col in row:  # каждый символ
+                        seed += 1
+                        if col == "!":
+                            bd = BlockDie(x, y, trap)
+                            self.entities.add(bd)
+                            platforms.append(bd)
+                        x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+                    y += PLATFORM_HEIGHT  # то же самое и с высотой
+                    x = 0  # на каждой новой строчке начинаем с нуля
+
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:
+                    self.run = False
+                    # смерть персонажа
+                if not self.player.life:
                     self.run = False
 
                 if e.type == KEYDOWN and e.key == K_LEFT:
@@ -142,13 +150,17 @@ class FireDungeon():
                 if e.type == KEYUP and e.key == K_DOWN:
                     down = False
 
+                if e.type == KEYDOWN and e.key == K_LSHIFT:
+                    running = True
+                if e.type == KEYUP and e.key == K_LSHIFT:
+                    running = False
             # First - backgorund drawing
             screen.blit(bg, (0, 0))
 
             # Next - drawing objects
-            self.entities.update(left, right, up, down, platforms)
+            self.entities.update(left, right, up, down, platforms, running)
             self.player.update(
-                left, right, up, down, platforms)
+                left, right, up, down, platforms, running)
 
             # Centralize camera on player
             camera.update(self.player)

@@ -1,12 +1,18 @@
 import pyganim
 from pygame import *
+
+import blocks
 from utils import *
 
 # Player basic variables
-MOVE_SPEED = 7
+MOVE_SPEED = 1
 PLAYER_WIDTH = 22
 PLAYER_HEIGHT = 32
 PLAYER_COLOR = "#888888"
+
+MOVE_EXTRA_SPEED = 3 # Ускорение
+JUMP_EXTRA_POWER = 1 # дополнительная сила прыжка
+ANIMATION_SUPER_SPEED_DELAY = 1 # скорость смены кадров при ускорении
 
 # Gravity constants
 JUMP_POWER = 10
@@ -44,6 +50,9 @@ class Player(sprite.Sprite):
         # Setting up basic speed
         self.xvel = 0
         self.yvel = 0
+        # параметр жизни персонажа, становиться False при заимодействии с огнём и шипами
+        # TODO можно реализовать его как int и сделать несколько жизней со счётчиком
+        self.life = True
 
         # Set up gravity value whether player need it or not
         if gravity:
@@ -56,19 +65,26 @@ class Player(sprite.Sprite):
         self.rect = Rect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
         self.image.set_colorkey(Color(PLAYER_COLOR))
 
-        # Animation right
+        #        Анимация движения вправо
         boltAnim = []
+        boltAnimSuperSpeed = []
         for anim in ANIMATION_RIGHT:
             boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
         self.boltAnimRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimRight.play()
-
-        # Animation left
+        self.boltAnimRightSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimRightSuperSpeed.play()
+        #        Анимация движения влево
         boltAnim = []
+        boltAnimSuperSpeed = []
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
         self.boltAnimLeft = pyganim.PygAnimation(boltAnim)
         self.boltAnimLeft.play()
+        self.boltAnimLeftSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimLeftSuperSpeed.play()
 
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
@@ -85,7 +101,7 @@ class Player(sprite.Sprite):
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
 
-    def update(self, left, right, up, down, platforms):
+    def update(self, left, right, up, down, platforms, running):
         '''
         Updating player sprite on the screen.
 
@@ -95,17 +111,26 @@ class Player(sprite.Sprite):
 
         Also, separated animations for each directions of the player.
         '''
+
         if left:
             self.xvel = -MOVE_SPEED  # Лево = x- n
             self.image.fill(Color(PLAYER_COLOR))
-            if up:  # для прыжка влево есть отдельная анимация
+            if running:  # если ускорение
+                self.xvel -= MOVE_EXTRA_SPEED  # то передвигаемся быстрее
+                if not up:  # и если не прыгаем
+                    self.boltAnimLeftSuperSpeed.blit(self.image, (0, 0))  # то отображаем быструю анимацию
+            elif up:  # для прыжка влево есть отдельная анимация
                 self.boltAnimJumpLeft.blit(self.image, (0, 0))
             else:
                 self.boltAnimLeft.blit(self.image, (0, 0))
         if right:
             self.xvel = MOVE_SPEED  # Право = x + n
             self.image.fill(Color(PLAYER_COLOR))
-            if up:
+            if running:
+                self.xvel += MOVE_EXTRA_SPEED
+                if not up:
+                    self.boltAnimRightSuperSpeed.blit(self.image, (0, 0))
+            elif up:
                 self.boltAnimJumpRight.blit(self.image, (0, 0))
             else:
                 self.boltAnimRight.blit(self.image, (0, 0))
@@ -179,3 +204,14 @@ class Player(sprite.Sprite):
                     self.rect.top = p.rect.bottom  # то не движется вверх
                     if self.gravity:
                         self.yvel = 0  # и энергия прыжка пропадает
+
+                if isinstance(p, blocks.BlockDie):  # если пересакаемый блок - blocks.BlockDie
+                    self.die()  # умираем
+
+    def die(self):
+            time.wait(500)
+            self.life = False
+
+    def teleporting(self, goX, goY):
+        self.rect.x = goX
+        self.rect.y = goY
