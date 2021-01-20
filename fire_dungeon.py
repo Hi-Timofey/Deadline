@@ -5,6 +5,7 @@ from camera import Camera
 from blocks import Platform, BlockDie
 from player import Player
 from create_level import create_level
+from fire import Fire, show_matrix
 
 # Window size
 WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 800, 600
@@ -15,6 +16,7 @@ BACKGROUND_COLOR = "#004400"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
+FIRE_START = [20, 10]
 
 
 
@@ -67,7 +69,7 @@ class FireDungeon():
         platforms = []
         self.entities.add(self.player)
         level = create_level(31, 31, 1)
-        level[2][1] = "!"
+        level[FIRE_START[0]][FIRE_START[1]] = "!"
         # Image for platforms
         platform_img = image.load(
             get_data_path(
@@ -99,16 +101,30 @@ class FireDungeon():
             camera_configure,
             total_level_width,
             total_level_height)
-
+        fire_list_coords = [FIRE_START]
         fire_counter = 0
         while self.run:  # Основной цикл программы
-
             self.timer.tick(60)
-
             fire_counter += 1
-            if fire_counter == 500:
-                print(f'Fire counter : {fire_counter}')
+            y = 0
+            if fire_counter == 120:
+                print(fire_list_coords)
+                for y_new, x_new in fire_list_coords:
+                    f = Fire(x_new, y_new)
+                    f.update(level, fire_list_coords)
+                    print()
+                    print(fire_list_coords)
                 fire_counter = 0
+                for row in level:  # вся строка
+                    for col in row:  # каждый символ
+                        seed += 1
+                        if col == "!":
+                            bd = BlockDie(x, y, trap)
+                            self.entities.add(bd)
+                            platforms.append(bd)
+                        x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+                    y += PLATFORM_HEIGHT  # то же самое и с высотой
+                    x = 0  # на каждой новой строчке начинаем с нуля
 
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:

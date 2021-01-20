@@ -43,7 +43,7 @@ class BlockDie(Platform):
 
 class BlockTeleport(Platform):
     def __init__(self, x, y, goX, goY):
-        Platform.__init__(self, x, y)
+        Platform.__init__(self, x, y, goX, goY)
         self.goX = goX  # координаты назначения перемещения
         self.goY = goY  # координаты назначения перемещения
         boltAnim = []
