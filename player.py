@@ -1,5 +1,7 @@
 import pyganim
 from pygame import *
+
+import blocks
 from utils import *
 
 # Player basic variables
@@ -48,6 +50,9 @@ class Player(sprite.Sprite):
         # Setting up basic speed
         self.xvel = 0
         self.yvel = 0
+        # параметр жизни персонажа, становиться False при заимодействии с огнём и шипами
+        # TODO можно реализовать его как int и сделать несколько жизней со счётчиком
+        self.life = True
 
         # Set up gravity value whether player need it or not
         if gravity:
@@ -199,3 +204,14 @@ class Player(sprite.Sprite):
                     self.rect.top = p.rect.bottom  # то не движется вверх
                     if self.gravity:
                         self.yvel = 0  # и энергия прыжка пропадает
+
+                if isinstance(p, blocks.BlockDie):  # если пересакаемый блок - blocks.BlockDie
+                    self.die()  # умираем
+
+    def die(self):
+            time.wait(500)
+            self.life = False
+
+    def teleporting(self, goX, goY):
+        self.rect.x = goX
+        self.rect.y = goY

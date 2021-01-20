@@ -2,7 +2,7 @@ import pygame
 from pygame import *
 from utils import *
 from camera import Camera
-from blocks import Platform
+from blocks import Platform, BlockDie
 from player import Player
 from create_level import create_level
 
@@ -15,6 +15,7 @@ BACKGROUND_COLOR = "#004400"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
+
 
 
 def camera_configure(camera, target_rect):
@@ -66,13 +67,13 @@ class FireDungeon():
         platforms = []
         self.entities.add(self.player)
         level = create_level(31, 31, 1)
-
+        level[2][1] = "!"
         # Image for platforms
         platform_img = image.load(
             get_data_path(
                 "wall_64x64_1.png",
                 'img')).convert()
-
+        trap = image.load(get_data_path('ship.png', 'img')).convert_alpha()
         x = y = 0  # координаты
         seed = 0
         for row in level:  # вся строка
@@ -82,6 +83,10 @@ class FireDungeon():
                     pf = Platform(x, y, platform_img)
                     self.entities.add(pf)
                     platforms.append(pf)
+                if col == "!":
+                    bd = BlockDie(x, y, trap)
+                    self.entities.add(bd)
+                    platforms.append(bd)
                 x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
             y += PLATFORM_HEIGHT  # то же самое и с высотой
             x = 0  # на каждой новой строчке начинаем с нуля
@@ -99,6 +104,9 @@ class FireDungeon():
             self.timer.tick(60)
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:
+                    self.run = False
+                    # смерть персонажа
+                if not self.player.life:
                     self.run = False
 
                 if e.type == KEYDOWN and e.key == K_LEFT:

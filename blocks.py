@@ -1,3 +1,4 @@
+import pygame
 from pygame import sprite, image
 import pyganim
 from pygame.locals import Color
@@ -30,12 +31,12 @@ class Platform(sprite.Sprite):
 
 
 class BlockDie(Platform):
-    def __init__(self, x, y):
-        img = image.load(get_data_path('ship.png', 'img')).convert_alpha()
+    def __init__(self, x, y, image):
+        img = image
         self.image = Surface(
             (PLATFORM_WIDTH, PLATFORM_HEIGHT),
             pygame.SRCALPHA)
-        Platform.__init__(self, x, y)
+        Platform.__init__(self, x, y, image)
 
         self.image = img
 
