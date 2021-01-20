@@ -2,19 +2,6 @@ from random import randint, seed, random
 from copy import deepcopy
 
 
-def show_random(num):
-    print('вывод рандома чрез python')
-    seed(num)
-    print(random())
-    seed(num)
-    print(random())
-    print('вывод randint() чрез python')
-    seed(num)
-    print(randint(-2, 2))
-    seed(num)
-    print(randint(-1, 1))
-
-
 def show_matrix(matrix):
     for _ in range(len(matrix)):
         for i in range(len(matrix[_])):
@@ -24,10 +11,22 @@ def show_matrix(matrix):
         print()
 
 
+def check_lvl(lvl):
+    flag = True
+    for i in range(0, len(lvl), 2):
+        if not flag:
+            break
+        for j in range(0, len(lvl[0]), 2):
+            if lvl[i][j] == 1:
+                flag = False
+                break
+    return flag
+
+
 def generate(matrix, num):
     flag = True
     x, y, e = 0, 0, 0
-    while e < (len(matrix[y]) * len(matrix[y]) ** 2):
+    while flag:
         e += 1
         seed(num)
         step = randint(-2, 2)
@@ -65,13 +64,10 @@ def generate(matrix, num):
                     matrix[y - 2][x] = 0
                     matrix[y - 1][x] = 0
                     y -= 2
+        if check_lvl(matrix):
+            flag = False
 
         num += 1
-        if e % 1000 == 0:
-            print(len(matrix[y]) * len(matrix[y]) ** 2 - e)
-            if ended(matrix, len(matrix), len(matrix[0])):
-                flag = False
-                print('Finish')
     return matrix
 
 
