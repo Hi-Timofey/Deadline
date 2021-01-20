@@ -68,34 +68,6 @@ class FireDB():
 
         return header[:16] == b'SQLite format 3\x00'
 
-    def get_all_data(self, ordered=True):
-        self._start()
-
-        if ordered:
-            response = self.cur.execute(
-                '''select distinct score, data from scores
-                                    order by score asc''').fetchall()
-        else:
-            response = self.cur.execute(
-                'select distinct score, data from scores').fetchall()
-
-        self._stop()
-        return response
-
-    def add_score(self, score, date):
-        self._start()
-        self.cur.execute(f"insert into scores values({int(score)}, '{date}')")
-        self.db_connect.commit()
-        self._stop()
-
-    def delete_all_scores(self):
-        self._start()
-
-        query = f"delete from scores"
-        self.cur.execute(query)
-
-        self.db_connect.commit()
-        self._stop()
 
 
 class Scores(FireDB):
@@ -133,6 +105,35 @@ class Scores(FireDB):
 
     def draw(self, surface):
         return self.menu.draw(surface)
+
+    def get_all_data(self, ordered=True):
+        self._start()
+
+        if ordered:
+            response = self.cur.execute(
+                '''select distinct score, data from scores
+                                    order by score asc''').fetchall()
+        else:
+            response = self.cur.execute(
+                'select distinct score, data from scores').fetchall()
+
+        self._stop()
+        return response
+
+    def add_score(self, score, date):
+        self._start()
+        self.cur.execute(f"insert into scores values({int(score)}, '{date}')")
+        self.db_connect.commit()
+        self._stop()
+
+    def delete_all_scores(self):
+        self._start()
+
+        query = f"delete from scores"
+        self.cur.execute(query)
+
+        self.db_connect.commit()
+        self._stop()
 
 
 if __name__ == '__main__':
