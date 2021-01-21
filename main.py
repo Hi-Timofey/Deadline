@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import fire_dungeon
+from credits import Credits
 import pygame
 import pygame_menu
 from db_related import Scores
@@ -11,11 +13,12 @@ FPS = 60
 display_info = pygame.display.Info()
 clock = pygame.time.Clock()
 
-window_size = window_width, window_height = 1000, 1000
+window_size = window_width, window_height = 800, 800
 game_size = g_width, g_height = 800, 800
 
 main_menu = None
-surface = pygame.display.set_mode((1000, 1000))
+game = False
+surface = pygame.display.set_mode(window_size)
 
 background_image = pygame_menu.baseimage.BaseImage(
     image_path=get_data_path('background.png', 'img'))
@@ -28,7 +31,6 @@ def draw_background():
 
 
 def start_end_credits():
-    from credits import Credits
     credit_list = [
         "CREDITS - The Departed",
         " ",
@@ -42,8 +44,9 @@ def start_end_credits():
 
 
 def start_the_game():
-    import fire_dungeon
-    fd = fire_dungeon.FireDungeon()
+    game = True
+    fd = fire_dungeon.FireDungeon(g_width,g_height)
+    surface.fill((0,0,0))
     fd.run_game(gravity=False)
 
 
@@ -53,7 +56,7 @@ def main():
 
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=pygame_menu.themes.THEME_BLUE)
-    scores_menu = Scores(1000, 1000)
+    scores_menu = Scores(window_width, window_height)
     main_menu.add_button('Play', start_the_game)
 
     main_menu.add_button('Scores', scores_menu.menu)

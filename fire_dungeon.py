@@ -7,11 +7,7 @@ from player import Player
 from create_level import create_level
 from fire import Fire, show_matrix
 
-# Window size
-WIN_SIZE = WIN_WIDTH, WIN_HEIGHT = 800, 600
 
-# Группируем ширину и высоту в одну переменную
-DISPLAY = (WIN_WIDTH, WIN_HEIGHT)
 BACKGROUND_COLOR = "#004400"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
@@ -20,42 +16,47 @@ FIRE_START = [20, 10]
 
 
 
-def camera_configure(camera, target_rect):
-    '''
-        Creating Rect for moving camera
-    '''
-    left, top, _, _ = target_rect
-    _, _, width, height = camera
-    left, top = -left + WIN_WIDTH / 2, -top + WIN_HEIGHT / 2
-
-    # Left walls
-    left = min(0, left)
-
-    # Right walls
-    left = max(-(camera.width - WIN_WIDTH), left)
-
-    # Top walls
-    top = max(-(camera.height - WIN_HEIGHT), top)
-    top = min(0, top)
-
-    return Rect(left, top, width, height)
 
 
 class FireDungeon():
 
-    def __init__(self):
+    def __init__(self, game_width, game_height):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
+        # Window size
+        self.WIN_SIZE = self.WIN_WIDTH, self.WIN_HEIGHT = game_width ,game_height
+        # Группируем ширину и высоту в одну переменную
+        self.DISPLAY = (self.WIN_WIDTH, self.WIN_HEIGHT)
+
+    def _camera_configure(self, camera, target_rect):
+        '''
+            Creating Rect for moving camera
+        '''
+        left, top, _, _ = target_rect
+        _, _, width, height = camera
+        left, top = -left + self.WIN_WIDTH / 2, -top + self.WIN_HEIGHT / 2
+
+        # Left walls
+        left = min(0, left)
+
+        # Right walls
+        left = max(-(camera.width - self.WIN_WIDTH), left)
+
+        # Top walls
+        top = max(-(camera.height - self.WIN_HEIGHT), top)
+        top = min(0, top)
+
+        return Rect(left, top, width, height)
 
     def run_game(self, gravity):
         '''
             Main cycle of the game.
         '''
         # Initialize pygame for this level
-        screen = pygame.display.set_mode(WIN_SIZE)
+        screen = pygame.display.set_mode(self.WIN_SIZE)
         pygame.display.set_caption("Fire Dungeon")
-        bg = Surface(WIN_SIZE)
+        bg = Surface(self.WIN_SIZE)
         bg.fill(Color(BACKGROUND_COLOR))
 
         # Default - player is NOT moving anywhere
@@ -98,7 +99,7 @@ class FireDungeon():
         total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
         running = False
         camera = Camera(
-            camera_configure,
+            self._camera_configure,
             total_level_width,
             total_level_height)
         fire_list_coords = [FIRE_START]
