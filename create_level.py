@@ -104,9 +104,11 @@ if __name__ == '__main__':
     show_matrix(matrix)
 
 
-def create_level(x_size, y_size, key):
+def create_level(x_size, y_size, key, callback=None):
     matrix_labirinth = [[1 for i in range(x_size)] for _ in range(y_size)]
     show_matrix(matrix_labirinth)
     matrix = generate(matrix_labirinth, int(key))
     matrix = restruct(matrix)
+    if callback is not None:
+        callback()
     return matrix

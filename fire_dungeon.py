@@ -20,7 +20,7 @@ FIRE_START = [20, 10]
 
 class FireDungeon():
 
-    def __init__(self, game_width, game_height):
+    def __init__(self,level, game_width, game_height, game_over_func=None):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
@@ -29,6 +29,8 @@ class FireDungeon():
         self.WIN_SIZE = self.WIN_WIDTH, self.WIN_HEIGHT = game_width ,game_height
         # Группируем ширину и высоту в одну переменную
         self.DISPLAY = (self.WIN_WIDTH, self.WIN_HEIGHT)
+        self.level = level
+        self.game_over_func = game_over_func
 
     def _camera_configure(self, camera, target_rect):
         '''
@@ -70,8 +72,7 @@ class FireDungeon():
         # Level generating
         platforms = []
         self.entities.add(self.player)
-        level = create_level(31, 31, 1)
-        level[FIRE_START[0]][FIRE_START[1]] = "!"
+        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
         # Image for platforms
         platform_img = image.load(
             get_data_path(
@@ -80,7 +81,7 @@ class FireDungeon():
         trap = image.load(get_data_path('ship.png', 'img')).convert_alpha()
         x = y = 0  # координаты
         seed = 0
-        for row in level:  # вся строка
+        for row in self.level:  # вся строка
             for col in row:  # каждый символ
                 seed += 1
                 if col == "#":
@@ -96,8 +97,8 @@ class FireDungeon():
             x = 0  # на каждой новой строчке начинаем с нуля
 
         # Высчитываем фактическую ширину уровня
-        total_level_width = len(level[0]) * PLATFORM_WIDTH
-        total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
+        total_level_width = len(self.level[0]) * PLATFORM_WIDTH
+        total_level_height = len(self.level) * PLATFORM_HEIGHT  # высоту
         running = False
         camera = Camera(
             self._camera_configure,
@@ -113,11 +114,11 @@ class FireDungeon():
                 print(fire_list_coords)
                 for y_new, x_new in fire_list_coords:
                     f = Fire(x_new, y_new)
-                    f.update(level, fire_list_coords)
+                    f.update(self.level, fire_list_coords)
                     print()
                     print(fire_list_coords)
                 fire_counter = 0
-                for row in level:  # вся строка
+                for row in self.level:  # вся строка
                     for col in row:  # каждый символ
                         seed += 1
                         if col == "!":
@@ -172,9 +173,12 @@ class FireDungeon():
                 screen.blit(e.image, camera.apply(e))
 
             pygame.display.update()
+        if self.game_over_func is not None:
+            self.game_over_func()
         return self.run
 
 
 if __name__ == "__main__":
-    fd = FireDungeon(800, 800)
+    level = create_level(31, 31, 1)
+    fd = FireDungeon(level, 800, 800)
     fd.run_game(gravity=False)
