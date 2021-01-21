@@ -24,6 +24,7 @@ class FireDungeon():
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
+        self.paused = False
         # Window size
         self.WIN_SIZE = self.WIN_WIDTH, self.WIN_HEIGHT = game_width ,game_height
         # Группируем ширину и высоту в одну переменную
@@ -134,6 +135,8 @@ class FireDungeon():
                 if not self.player.life:
                     self.run = False
 
+                if e.type == KEYDOWN and e.key == K_ESCAPE:
+                    print('escape')
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True
                 if e.type == KEYDOWN and e.key == K_RIGHT:
@@ -173,5 +176,5 @@ class FireDungeon():
 
 
 if __name__ == "__main__":
-    fd = FireDungeon()
+    fd = FireDungeon(800, 800)
     fd.run_game(gravity=False)
