@@ -95,11 +95,14 @@ def main():
             # if loading:
             surface.fill((0, 0, 0))
             level = create_level(31, 31, 1, callback=loaded)
+            level2 = create_level(20,20,2, callback=loaded)
+
             if not loading:
                 fd = fire_dungeon.FireDungeon(
                     level, g_width, g_height, game_over_func=game_over)
 
-                fd.run_game(gravity=False)
+                if not fd.run_game(gravity=False):
+                    fd2 = fire_dungeon.FireDungeon(level2, g_width, g_height, game_over_func=game_over)
 
         # Credits(credit_list, surface, 'Sigma Five.otf').main()
         pygame.display.update()

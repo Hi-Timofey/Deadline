@@ -12,12 +12,13 @@ BACKGROUND_COLOR = "#004400"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-FIRE_START = [20, 10]
+FIRE_START = [1, 1]
 
 
 class FireDungeon():
 
-    def __init__(self, level, game_width, game_height, game_over_func=None):
+    def __init__(self, level, player, game_width, game_height,
+                 game_over_func=None, gravity=False):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
@@ -33,6 +34,16 @@ class FireDungeon():
         self.platforms = []
         self.seed = 0
         self.x = self.y = 0  # координаты
+        self.player = player
+        self.entities.add(self.player)
+        # Высчитываем фактическую ширину уровня
+        self.total_level_width = len(self.level[0]) * PLATFORM_WIDTH
+        self.total_level_height = len(self.level) * PLATFORM_HEIGHT  # высоту
+        # Camera for player
+        self.camera = Camera(
+            self._camera_configure,
+            self.total_level_width,
+            self.total_level_height)
 
     def _camera_configure(self, camera, target_rect):
         '''
@@ -87,28 +98,29 @@ class FireDungeon():
         bg.fill(Color(BACKGROUND_COLOR))
 
         # Default - player is NOT moving anywhere
-        self.player = Player(64, 64, gravity)
         # Directions of the player
         left = right = False
         up = False
         down = gravity
 
         # Images TODO mb leave to global for resource economy
-        self.fire_image = image.load(get_data_path('ship.png', 'img')).convert_alpha()
-
-        # Level generating
-        self.entities.add(self.player)
-        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
-        # Image for platforms
-        platform_img = image.load(
+        self.fire_image = image.load(
+            get_data_path(
+                'ship.png',
+                'img')).convert_alpha()
+        self.platform_image = image.load(
             get_data_path(
                 "wall_64x64_1.png",
                 'img')).convert()
+
+        # Level generating
+        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
+        # Image for platforms
         for row in self.level:  # вся строка
             for col in row:  # каждый символ
                 self.seed += 1
                 if col == "#":
-                    pf = Platform(self.x, self.y, platform_img)
+                    pf = Platform(self.x, self.y, self.platform_image)
                     self.entities.add(pf)
                     self.platforms.append(pf)
                 if col == "!":
@@ -119,14 +131,7 @@ class FireDungeon():
             self.y += PLATFORM_HEIGHT  # то же самое и с высотой
             self.x = 0  # на каждой новой строчке начинаем с нуля
 
-        # Высчитываем фактическую ширину уровня
-        total_level_width = len(self.level[0]) * PLATFORM_WIDTH
-        total_level_height = len(self.level) * PLATFORM_HEIGHT  # высоту
         running = False
-        camera = Camera(
-            self._camera_configure,
-            total_level_width,
-            total_level_height)
         self.fire_list_coords = [FIRE_START]
 
         while self.run:  # Основной цикл программы
@@ -168,14 +173,15 @@ class FireDungeon():
             self.screen.blit(bg, (0, 0))
 
             # Next - drawing objects
-            self.entities.update(left, right, up, down, self.platforms, running)
+            self.entities.update(
+                left, right, up, down, self.platforms, running)
             self.player.update(
                 left, right, up, down, self.platforms, running)
 
             # Centralize camera on player
-            camera.update(self.player)
+            self.camera.update(self.player)
             for e in self.entities:
-                self.screen.blit(e.image, camera.apply(e))
+                self.screen.blit(e.image, self.camera.apply(e))
 
             pygame.display.update()
         if self.game_over_func is not None:
@@ -184,6 +190,12 @@ class FireDungeon():
 
 
 if __name__ == "__main__":
-    level = create_level(31, 31, 1)
-    fd = FireDungeon(level, 800, 800)
+    gravity = False
+    pl = Player(64, 64, gravity)
+    level = create_level(31, 31, 6)
+    fd = FireDungeon(level, pl, 800, 800)
     fd.run_game(gravity=False)
+
+    # level = create_level(31, 31, 2)
+    # fd = FireDungeon(level, 800, 800)
+    # fd.run_game(gravity=False)
