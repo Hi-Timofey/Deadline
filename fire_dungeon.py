@@ -134,6 +134,7 @@ class FireDungeon():
         running = False
         self.fire_list_coords = [FIRE_START]
 
+        exit_code = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
 
@@ -145,6 +146,7 @@ class FireDungeon():
                     # смерть персонажа
                 if not self.player.life:
                     self.run = False
+                    exit_code = 1
 
                 if e.type == KEYDOWN and e.key == K_ESCAPE:
                     print('escape')
@@ -186,7 +188,7 @@ class FireDungeon():
             pygame.display.update()
         if self.game_over_func is not None:
             self.game_over_func()
-        return self.run
+        return exit_code
 
 
 if __name__ == "__main__":

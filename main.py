@@ -42,7 +42,8 @@ def start_the_game_from_menu():
         fd = fire_dungeon.FireDungeon(
             create_level(31, 31, LEVEL * (LEVEL + 1)),
             pl, g_width, g_height)
-        fd.run_game(False)
+        result = fd.run_game(False)
+        print(result)
         del fd
         del pl
         LEVEL += 1
