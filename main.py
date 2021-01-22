@@ -6,6 +6,7 @@ import pygame_menu
 from db_related import Scores
 from utils import *
 from create_level import create_level
+from player import Player
 
 
 pygame.init()
@@ -18,7 +19,7 @@ window_size = window_width, window_height = 800, 800
 game_size = g_width, g_height = 800, 800
 
 main_menu = None
-credits, game, loading = False, False, False
+credits, game = False, False
 surface = pygame.display.set_mode(window_size)
 
 background_image = pygame_menu.baseimage.BaseImage(
@@ -31,26 +32,24 @@ def draw_background():
     background_image.draw(surface)
 
 
-def loaded():
-    global loading
-    loading = False
-
-
-def game_over():
-    global game
-    game = False
-
-
 def start_the_game_from_menu():
-    global game
-    global loading
-    game = True
-    loading = True
+    surface.fill((0, 0, 0))
+    LEVEL = 1
+    gravity = False
+
+    while True:
+        pl = Player(64, 64, gravity)
+        fd = fire_dungeon.FireDungeon(
+            create_level(31, 31, LEVEL * (LEVEL + 1)),
+            pl, g_width, g_height)
+        fd.run_game(False)
+        del fd
+        del pl
+        LEVEL += 1
+        game = True
 
 
 def main():
-    global game
-    global loading
     pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
     pygame.mixer.music.play(-1)
 
@@ -87,22 +86,9 @@ def main():
 
         if not game:
             draw_background()
-            if not loading:
-                main_menu.draw(surface)
-            if loading:
-                surface.fill((0, 0, 0))
+            main_menu.draw(surface)
         else:
-            # if loading:
-            surface.fill((0, 0, 0))
-            level = create_level(31, 31, 1, callback=loaded)
-            level2 = create_level(20,20,2, callback=loaded)
-
-            if not loading:
-                fd = fire_dungeon.FireDungeon(
-                    level, g_width, g_height, game_over_func=game_over)
-
-                if not fd.run_game(gravity=False):
-                    fd2 = fire_dungeon.FireDungeon(level2, g_width, g_height, game_over_func=game_over)
+            start_the_game_from_menu()
 
         # Credits(credit_list, surface, 'Sigma Five.otf').main()
         pygame.display.update()

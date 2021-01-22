@@ -7,8 +7,8 @@ def show_matrix(matrix):
         for i in range(len(matrix[_])):
             pp = str(matrix[_][i]).replace('0', ' ')
             pp = str(matrix[_][i]).replace('1', '#')
-            print(pp, end="")
-        print()
+            # print(pp, end="")
+        # print()
 
 
 def check_lvl(lvl):
