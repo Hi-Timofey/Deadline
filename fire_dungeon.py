@@ -12,23 +12,38 @@ BACKGROUND_COLOR = "#004400"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-FIRE_START = [20, 10]
-
-
-
+FIRE_START = [1, 1]
 
 
 class FireDungeon():
 
-    def __init__(self, game_width, game_height):
+    def __init__(self, level, player, game_width, game_height,
+                 game_over_func=None, gravity=False):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
         self.paused = False
         # Window size
-        self.WIN_SIZE = self.WIN_WIDTH, self.WIN_HEIGHT = game_width ,game_height
+        self.WIN_SIZE = self.WIN_WIDTH, self.WIN_HEIGHT = game_width, game_height
         # Группируем ширину и высоту в одну переменную
         self.DISPLAY = (self.WIN_WIDTH, self.WIN_HEIGHT)
+        # Game
+        self.level = level
+        self.fire_counter = 0
+        self.game_over_func = game_over_func
+        self.platforms = []
+        self.seed = 0
+        self.x = self.y = 0  # координаты
+        self.player = player
+        self.entities.add(self.player)
+        # Высчитываем фактическую ширину уровня
+        self.total_level_width = len(self.level[0]) * PLATFORM_WIDTH
+        self.total_level_height = len(self.level) * PLATFORM_HEIGHT  # высоту
+        # Camera for player
+        self.camera = Camera(
+            self._camera_configure,
+            self.total_level_width,
+            self.total_level_height)
 
     def _camera_configure(self, camera, target_rect):
         '''
@@ -50,83 +65,80 @@ class FireDungeon():
 
         return Rect(left, top, width, height)
 
+    def _fire_cycle(self):
+        self.fire_counter += 1
+        self.y = 0
+        if self.fire_counter == 120:
+            print(self.fire_list_coords)
+            for y_new, x_new in self.fire_list_coords:
+                f = Fire(x_new, y_new)
+                f.update(self.level, self.fire_list_coords)
+                print()
+                print(self.fire_list_coords)
+            self.fire_counter = 0
+            for row in self.level:  # вся строка
+                for col in row:  # каждый символ
+                    self.seed += 1
+                    if col == "!":
+                        bd = BlockDie(self.x, self.y, self.fire_image)
+                        self.entities.add(bd)
+                        self.platforms.append(bd)
+                    self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+                self.y += PLATFORM_HEIGHT  # то же самое и с высотой
+                self.x = 0  # на каждой новой строчке начинаем с нуля
+
     def run_game(self, gravity):
         '''
             Main cycle of the game.
         '''
         # Initialize pygame for this level
-        screen = pygame.display.set_mode(self.WIN_SIZE)
+        self.screen = pygame.display.set_mode(self.WIN_SIZE)
         pygame.display.set_caption("Fire Dungeon")
         bg = Surface(self.WIN_SIZE)
         bg.fill(Color(BACKGROUND_COLOR))
 
         # Default - player is NOT moving anywhere
-        self.player = Player(64, 64, gravity)
         # Directions of the player
         left = right = False
         up = False
         down = gravity
 
-        # Level generating
-        platforms = []
-        self.entities.add(self.player)
-        level = create_level(31, 31, 1)
-        level[FIRE_START[0]][FIRE_START[1]] = "!"
-        # Image for platforms
-        platform_img = image.load(
+        # Images TODO mb leave to global for resource economy
+        self.fire_image = image.load(
+            get_data_path(
+                'ship.png',
+                'img')).convert_alpha()
+        self.platform_image = image.load(
             get_data_path(
                 "wall_64x64_1.png",
                 'img')).convert()
-        trap = image.load(get_data_path('ship.png', 'img')).convert_alpha()
-        x = y = 0  # координаты
-        seed = 0
-        for row in level:  # вся строка
-            for col in row:  # каждый символ
-                seed += 1
-                if col == "#":
-                    pf = Platform(x, y, platform_img)
-                    self.entities.add(pf)
-                    platforms.append(pf)
-                if col == "!":
-                    bd = BlockDie(x, y, trap)
-                    self.entities.add(bd)
-                    platforms.append(bd)
-                x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
-            y += PLATFORM_HEIGHT  # то же самое и с высотой
-            x = 0  # на каждой новой строчке начинаем с нуля
 
-        # Высчитываем фактическую ширину уровня
-        total_level_width = len(level[0]) * PLATFORM_WIDTH
-        total_level_height = len(level) * PLATFORM_HEIGHT  # высоту
+        # Level generating
+        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
+        # Image for platforms
+        for row in self.level:  # вся строка
+            for col in row:  # каждый символ
+                self.seed += 1
+                if col == "#":
+                    pf = Platform(self.x, self.y, self.platform_image)
+                    self.entities.add(pf)
+                    self.platforms.append(pf)
+                if col == "!":
+                    bd = BlockDie(self.x, self.y, self.fire_image)
+                    self.entities.add(bd)
+                    self.platforms.append(bd)
+                self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+            self.y += PLATFORM_HEIGHT  # то же самое и с высотой
+            self.x = 0  # на каждой новой строчке начинаем с нуля
+
         running = False
-        camera = Camera(
-            self._camera_configure,
-            total_level_width,
-            total_level_height)
-        fire_list_coords = [FIRE_START]
-        fire_counter = 0
+        self.fire_list_coords = [FIRE_START]
+
+        exit_code = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
-            fire_counter += 1
-            y = 0
-            if fire_counter == 120:
-                print(fire_list_coords)
-                for y_new, x_new in fire_list_coords:
-                    f = Fire(x_new, y_new)
-                    f.update(level, fire_list_coords)
-                    print()
-                    print(fire_list_coords)
-                fire_counter = 0
-                for row in level:  # вся строка
-                    for col in row:  # каждый символ
-                        seed += 1
-                        if col == "!":
-                            bd = BlockDie(x, y, trap)
-                            self.entities.add(bd)
-                            platforms.append(bd)
-                        x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
-                    y += PLATFORM_HEIGHT  # то же самое и с высотой
-                    x = 0  # на каждой новой строчке начинаем с нуля
+
+            self._fire_cycle()
 
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:
@@ -134,6 +146,7 @@ class FireDungeon():
                     # смерть персонажа
                 if not self.player.life:
                     self.run = False
+                    exit_code = 1
 
                 if e.type == KEYDOWN and e.key == K_ESCAPE:
                     print('escape')
@@ -159,22 +172,32 @@ class FireDungeon():
                 if e.type == KEYUP and e.key == K_LSHIFT:
                     running = False
             # First - backgorund drawing
-            screen.blit(bg, (0, 0))
+            self.screen.blit(bg, (0, 0))
 
             # Next - drawing objects
-            self.entities.update(left, right, up, down, platforms, running)
+            self.entities.update(
+                left, right, up, down, self.platforms, running)
             self.player.update(
-                left, right, up, down, platforms, running)
+                left, right, up, down, self.platforms, running)
 
             # Centralize camera on player
-            camera.update(self.player)
+            self.camera.update(self.player)
             for e in self.entities:
-                screen.blit(e.image, camera.apply(e))
+                self.screen.blit(e.image, self.camera.apply(e))
 
             pygame.display.update()
-        return self.run
+        if self.game_over_func is not None:
+            self.game_over_func()
+        return exit_code
 
 
 if __name__ == "__main__":
-    fd = FireDungeon(800, 800)
+    gravity = False
+    pl = Player(64, 64, gravity)
+    level = create_level(31, 31, 6)
+    fd = FireDungeon(level, pl, 800, 800)
     fd.run_game(gravity=False)
+
+    # level = create_level(31, 31, 2)
+    # fd = FireDungeon(level, 800, 800)
+    # fd.run_game(gravity=False)
