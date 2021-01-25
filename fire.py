@@ -1,9 +1,16 @@
 class Fire():
+
     def __init__(self, x, y):
+        '''
+        Init Fire example with startin coord
+        '''
         self.x = x
         self.y = y
 
     def update(self, level, fire):
+        '''
+        Updating fire sprites + logic of spreading
+        '''
         if level[self.y][self.x] == '!':
             # front
             line = level[self.y]
@@ -20,7 +27,8 @@ class Fire():
                     fire.append([y + 1, x])
 
             if x + 1 < len(line) and y + 1 < len(level):
-                if str(level[y + 1][x + 1]) == '0' or str(level[y + 1][x + 1]) == ' ':
+                if str(level[y + 1][x + 1]
+                       ) == '0' or str(level[y + 1][x + 1]) == ' ':
                     level[y + 1][x + 1] = '!'
                     fire.append([y + 1, x + 1])
             # back
@@ -36,18 +44,21 @@ class Fire():
                     fire.append([y - 1, x])
 
             if y > 0 and x > 0:
-                if str(level[y - 1][x - 1]) == '0' or str(level[y - 1][x - 1]) == ' ':
+                if str(level[y - 1][x - 1]
+                       ) == '0' or str(level[y - 1][x - 1]) == ' ':
                     level[y - 1][x - 1] = '!'
                     fire.append([y - 1, x - 1])
 
             # diagonal
             if x > 0 and y + 1 < len(level):
-                if str(level[y + 1][x - 1]) == '0' or str(level[y + 1][x - 1]) == ' ':
+                if str(level[y + 1][x - 1]
+                       ) == '0' or str(level[y + 1][x - 1]) == ' ':
                     level[y + 1][x - 1] = '!'
                     fire.append([y + 1, x - 1])
 
             if y > 0 and x + 1 < len(line):
-                if str(level[y - 1][x + 1]) == '0' or str(level[y - 1][x + 1]) == ' ':
+                if str(level[y - 1][x + 1]
+                       ) == '0' or str(level[y - 1][x + 1]) == ' ':
                     level[y - 1][x + 1] = '!'
                     fire.append([y - 1, x + 1])
             level[y][x] = "&"
@@ -68,8 +79,14 @@ def show_matrix(matrix):
 
 
 if __name__ == '__main__':
-    level = [[0, 0, 0, 0, 0, 1, 0], [1, 1, 1, 1, 0, 1, 0], [0, 1, 0, 1, 0, 0, 0], [0, 1, 0, 1, 1, 1, 0],
-             [0, 1, 0, 0, 0, 1, 0], [0, 1, 0, 1, 0, 1, 0], [0, 0, 0, 1, 0, 0, 0]]
+    level = [
+        [0, 0, 0, 0, 0, 1, 0],
+        [1, 1, 1, 1, 0, 1, 0],
+        [0, 1, 0, 1, 0, 0, 0],
+        [0, 1, 0, 1, 1, 1, 0],
+        [0, 1, 0, 0, 0, 1, 0],
+        [0, 1, 0, 1, 0, 1, 0],
+        [0, 0, 0, 1, 0, 0, 0]]
     level[0][0] = "!"
     fire_list_coords = [[0, 0]]
     while fire_list_coords:
@@ -79,4 +96,3 @@ if __name__ == '__main__':
             print()
             show_matrix(level)
             print(fire_list_coords)
-

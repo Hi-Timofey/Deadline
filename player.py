@@ -21,12 +21,6 @@ GRAVITY = 0.35
 
 # Animation constants
 ANIMATION_DELAY = 1
-'''
-TMP = pygame.transform.scale(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), [48, 48])
-char = TMP.subsurface(0, 0, 48, 48)
-char = pygame.transform.scale(char, (32, 32))
-'''
-AN_R =
 ANIMATION_RIGHT = [(get_data_path('r1.png', 'img')),
                    (get_data_path('r2.png', 'img')),
                    (get_data_path('r3.png', 'img')),
@@ -217,10 +211,12 @@ class Player(sprite.Sprite):
                     self.die()  # умираем
 
     def die(self):
-        time.wait(500)
+        ''' Life value false means that player died'''
         self.life = False
+        time.wait(500)
 
     def win(self):
+        ''' End value true means that level is finished'''
         self.end = True
 
     def teleporting(self, goX, goY):
