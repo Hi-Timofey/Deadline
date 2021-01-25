@@ -2,17 +2,17 @@ import pygame
 from pygame import *
 from utils import *
 from camera import Camera
-from blocks import Platform, BlockDie
+from blocks import Platform, BlockDie, Door, ClosedDoor
 from player import Player
 from create_level import create_level
 from fire import Fire, show_matrix
 
 
-BACKGROUND_COLOR = "#004400"
+BACKGROUND_COLOR = "#000000"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-FIRE_START = [20, 10]
+FIRE_START = [2, 1]
 
 
 
@@ -61,36 +61,40 @@ class FireDungeon():
         bg.fill(Color(BACKGROUND_COLOR))
 
         # Default - player is NOT moving anywhere
-        self.player = Player(64, 64, gravity)
+        self.player = Player(164, 164, gravity)
         # Directions of the player
         left = right = False
         up = False
         down = gravity
-
         # Level generating
         platforms = []
         self.entities.add(self.player)
         level = create_level(31, 31, 1)
         level[FIRE_START[0]][FIRE_START[1]] = "!"
         # Image for platforms
-        platform_img = image.load(
-            get_data_path(
-                "wall_64x64_1.png",
-                'img')).convert()
-        trap = image.load(get_data_path('ship.png', 'img')).convert_alpha()
+        animatedEntities = pygame.sprite.Group()  # все анимированные объекты, за исключением героя
+
         x = y = 0  # координаты
         seed = 0
         for row in level:  # вся строка
             for col in row:  # каждый символ
                 seed += 1
                 if col == "#":
-                    pf = Platform(x, y, platform_img)
+                    pf = Platform(x, y)
                     self.entities.add(pf)
                     platforms.append(pf)
                 if col == "!":
-                    bd = BlockDie(x, y, trap)
+                    bd = BlockDie(x, y)
                     self.entities.add(bd)
                     platforms.append(bd)
+                if col == "C":
+                    pf = ClosedDoor(x, y)
+                    self.entities.add(pf)
+                    platforms.append(pf)
+                if col == "E":
+                    pf = Door(x, y)
+                    self.entities.add(pf)
+                    platforms.append(pf)
                 x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
             y += PLATFORM_HEIGHT  # то же самое и с высотой
             x = 0  # на каждой новой строчке начинаем с нуля
@@ -121,8 +125,9 @@ class FireDungeon():
                     for col in row:  # каждый символ
                         seed += 1
                         if col == "!":
-                            bd = BlockDie(x, y, trap)
+                            bd = BlockDie(x, y)
                             self.entities.add(bd)
+                            animatedEntities.add(bd)
                             platforms.append(bd)
                         x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
                     y += PLATFORM_HEIGHT  # то же самое и с высотой
@@ -133,6 +138,8 @@ class FireDungeon():
                     self.run = False
                     # смерть персонажа
                 if not self.player.life:
+                    self.run = False
+                if self.player.end:
                     self.run = False
 
                 if e.type == KEYDOWN and e.key == K_ESCAPE:
@@ -162,10 +169,10 @@ class FireDungeon():
             screen.blit(bg, (0, 0))
 
             # Next - drawing objects
+            animatedEntities.update()
             self.entities.update(left, right, up, down, platforms, running)
             self.player.update(
                 left, right, up, down, platforms, running)
-
             # Centralize camera on player
             camera.update(self.player)
             for e in self.entities:

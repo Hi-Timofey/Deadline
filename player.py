@@ -1,3 +1,4 @@
+import pygame
 import pyganim
 from pygame import *
 
@@ -6,13 +7,13 @@ from utils import *
 
 # Player basic variables
 MOVE_SPEED = 1
-PLAYER_WIDTH = 22
+PLAYER_WIDTH = 31  # нужен на один пиксель меньше чем размер блока, иначе взаимодействие багует
 PLAYER_HEIGHT = 32
 PLAYER_COLOR = "#888888"
 
-MOVE_EXTRA_SPEED = 3 # Ускорение
-JUMP_EXTRA_POWER = 1 # дополнительная сила прыжка
-ANIMATION_SUPER_SPEED_DELAY = 1 # скорость смены кадров при ускорении
+MOVE_EXTRA_SPEED = 3  # Ускорение
+JUMP_EXTRA_POWER = 1  # дополнительная сила прыжка
+ANIMATION_SUPER_SPEED_DELAY = 1  # скорость смены кадров при ускорении
 
 # Gravity constants
 JUMP_POWER = 10
@@ -20,7 +21,12 @@ GRAVITY = 0.35
 
 # Animation constants
 ANIMATION_DELAY = 1
-
+'''
+TMP = pygame.transform.scale(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), [48, 48])
+char = TMP.subsurface(0, 0, 48, 48)
+char = pygame.transform.scale(char, (32, 32))
+'''
+AN_R =
 ANIMATION_RIGHT = [(get_data_path('r1.png', 'img')),
                    (get_data_path('r2.png', 'img')),
                    (get_data_path('r3.png', 'img')),
@@ -36,7 +42,7 @@ ANIMATION_LEFT = [(get_data_path('l1.png', 'img')),
 ANIMATION_JUMP_LEFT = [(get_data_path('jl.png', 'img'), 1)]
 ANIMATION_JUMP_RIGHT = [(get_data_path('jr.png', 'img'), 1)]
 ANIMATION_JUMP = [(get_data_path('j.png', 'img'), 1)]
-ANIMATION_STAY = [(get_data_path('0.png', 'img'), 1)]
+ANIMATION_STAY = [(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), 1)]
 
 
 class Player(sprite.Sprite):
@@ -53,6 +59,7 @@ class Player(sprite.Sprite):
         # параметр жизни персонажа, становиться False при заимодействии с огнём и шипами
         # TODO можно реализовать его как int и сделать несколько жизней со счётчиком
         self.life = True
+        self.end = False
 
         # Set up gravity value whether player need it or not
         if gravity:
@@ -189,7 +196,8 @@ class Player(sprite.Sprite):
         for p in platforms:
             if sprite.collide_rect(
                     self, p):  # если есть пересечение платформы с игроком
-
+                if isinstance(p, blocks.Door):  # если пересакаемый блок - blocks.BlockDie
+                    self.win()  # выходим из лабиринта
                 if xvel > 0:  # если движется вправо
                     self.rect.right = p.rect.left  # то не движется вправо
                 if xvel < 0:  # если движется влево
@@ -209,8 +217,11 @@ class Player(sprite.Sprite):
                     self.die()  # умираем
 
     def die(self):
-            time.wait(500)
-            self.life = False
+        time.wait(500)
+        self.life = False
+
+    def win(self):
+        self.end = True
 
     def teleporting(self, goX, goY):
         self.rect.x = goX
