@@ -5,13 +5,11 @@ from pygame import *
 import blocks
 from utils import *
 
-# Player basic variables
-MOVE_SPEED = 1
-PLAYER_WIDTH = 31  # нужен на один пиксель меньше чем размер блока, иначе взаимодействие багует
+# нужен на один пиксель меньше чем размер блока, иначе взаимодействие багует
+PLAYER_WIDTH = 31
 PLAYER_HEIGHT = 32
 PLAYER_COLOR = "#888888"
 
-MOVE_EXTRA_SPEED = 3  # Ускорение
 JUMP_EXTRA_POWER = 1  # дополнительная сила прыжка
 ANIMATION_SUPER_SPEED_DELAY = 1  # скорость смены кадров при ускорении
 
@@ -36,11 +34,16 @@ ANIMATION_LEFT = [(get_data_path('l1.png', 'img')),
 ANIMATION_JUMP_LEFT = [(get_data_path('jl.png', 'img'), 1)]
 ANIMATION_JUMP_RIGHT = [(get_data_path('jr.png', 'img'), 1)]
 ANIMATION_JUMP = [(get_data_path('j.png', 'img'), 1)]
-ANIMATION_STAY = [(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), 1)]
+ANIMATION_STAY = [
+    (pygame.image.load(
+        get_data_path(
+            'Woodcutter1.png',
+            'character')),
+     1)]
 
 
 class Player(sprite.Sprite):
-    def __init__(self, x, y, gravity=True):
+    def __init__(self, x, y, move_speed=1, mv_extra_multi=2, gravity=True):
         sprite.Sprite.__init__(self)
         # Starting coordinates
         self.start_x = x
@@ -50,8 +53,14 @@ class Player(sprite.Sprite):
         # Setting up basic speed
         self.xvel = 0
         self.yvel = 0
+
+        # Setting player basic speed (FLOAT) and extra (FLOAT)
+        self.move_speed = move_speed
+        self.mv_extra_multi = mv_extra_multi
+
         # параметр жизни персонажа, становиться False при заимодействии с огнём и шипами
-        # TODO можно реализовать его как int и сделать несколько жизней со счётчиком
+        # TODO можно реализовать его как int и сделать несколько жизней со
+        # счётчиком
         self.life = True
         self.end = False
 
@@ -103,6 +112,7 @@ class Player(sprite.Sprite):
             boltAnim.append((anim, ANIMATION_DELAY))
 
     def update(self, left, right, up, down, platforms, running):
+        # TODO Speed up and down( eve running) fix
         '''
         Updating player sprite on the screen.
 
@@ -114,21 +124,22 @@ class Player(sprite.Sprite):
         '''
 
         if left:
-            self.xvel = -MOVE_SPEED  # Лево = x- n
+            self.xvel = -self.move_speed  # Лево = x- n
             self.image.fill(Color(PLAYER_COLOR))
             if running:  # если ускорение
-                self.xvel -= MOVE_EXTRA_SPEED  # то передвигаемся быстрее
+                self.xvel -= self.move_speed * self.mv_extra_multi  # то передвигаемся быстрее
                 if not up:  # и если не прыгаем
-                    self.boltAnimLeftSuperSpeed.blit(self.image, (0, 0))  # то отображаем быструю анимацию
+                    self.boltAnimLeftSuperSpeed.blit(
+                        self.image, (0, 0))  # то отображаем быструю анимацию
             elif up:  # для прыжка влево есть отдельная анимация
                 self.boltAnimJumpLeft.blit(self.image, (0, 0))
             else:
                 self.boltAnimLeft.blit(self.image, (0, 0))
         if right:
-            self.xvel = MOVE_SPEED  # Право = x + n
+            self.xvel = self.move_speed  # Право = x + n
             self.image.fill(Color(PLAYER_COLOR))
             if running:
-                self.xvel += MOVE_EXTRA_SPEED
+                self.xvel += self.move_speed * self.mv_extra_multi
                 if not up:
                     self.boltAnimRightSuperSpeed.blit(self.image, (0, 0))
             elif up:
@@ -153,11 +164,11 @@ class Player(sprite.Sprite):
             # In non-gravity mode logic of UP and DOWN same as
             # fot the RIGHT and LEFT, but on OY.
             if up:
-                self.yvel = -MOVE_SPEED
+                self.yvel = -self.move_speed
                 self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
             if down:
-                self.yvel = MOVE_SPEED
+                self.yvel = self.move_speed
                 self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
             if not (up or down or left or right):
@@ -190,7 +201,8 @@ class Player(sprite.Sprite):
         for p in platforms:
             if sprite.collide_rect(
                     self, p):  # если есть пересечение платформы с игроком
-                if isinstance(p, blocks.Door):  # если пересакаемый блок - blocks.BlockDie
+                if isinstance(
+                        p, blocks.Door):  # если пересакаемый блок - blocks.BlockDie
                     self.win()  # выходим из лабиринта
                 if xvel > 0:  # если движется вправо
                     self.rect.right = p.rect.left  # то не движется вправо
@@ -207,7 +219,8 @@ class Player(sprite.Sprite):
                     if self.gravity:
                         self.yvel = 0  # и энергия прыжка пропадает
 
-                if isinstance(p, blocks.BlockDie):  # если пересакаемый блок - blocks.BlockDie
+                if isinstance(
+                        p, blocks.BlockDie):  # если пересакаемый блок - blocks.BlockDie
                     self.die()  # умираем
 
     def die(self):

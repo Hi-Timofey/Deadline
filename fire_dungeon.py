@@ -199,10 +199,19 @@ class FireDungeon():
 
 if __name__ == "__main__":
     gravity = False
-    pl = Player(65, 64, gravity)
+    mv = 1
+    mv_extra = 2
+
+    player = Player(
+        64,
+        64,
+        move_speed=mv,
+        mv_extra_multi=mv_extra,
+        gravity=gravity)
+
     level = create_level(31, 31, 1)
-    fd = FireDungeon(level, pl, 800, 800, 120)
-    result = fd.run_game(gravity=False)
+    fire_level = FireDungeon(level, player, 800, 800, 120)
+    result = fire_level.run_game(gravity=False)
     if result == 2:
         print('-' * 10, 'DIED', '-' * 10)
     if result == 3:

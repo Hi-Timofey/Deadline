@@ -42,18 +42,39 @@ def start_the_game_from_menu():
     surface.fill((0, 0, 0))
     LEVEL = 1
     gravity = False
+    # Changing values
+
+    # Maze parameters (X * Y)
+    level_width = 15
+    level_height = 15
+    # FIRE SPEED
+    fire_speed = 90
+    # PLAYER MOVEMENT
+    player_mv = 1
+    player_mv_extra = 2
 
     while game:
-        pl = Player(64, 64, gravity)
-        fd = fire_dungeon.FireDungeon(
-            create_level(31, 31, LEVEL * (LEVEL + 1)),
-            pl, g_width, g_height, 120)
-        result = fd.run_game(False)
+        player = Player(
+            68,
+            68,
+            move_speed=player_mv,
+            mv_extra_multi=player_mv_extra,
+            gravity=gravity)
+
+        fire_dungeon_lvl = fire_dungeon.FireDungeon(
+            create_level(level_width, level_height, LEVEL),
+            player, g_width, g_height, fire_speed)
+        result = fire_dungeon_lvl.run_game(False)
         print(result)
-        del fd
-        del pl
+        del fire_dungeon_lvl
+        del player
         if result == 3:
             LEVEL += 1
+            fire_speed -= 5
+            level_width += 4
+            level_height += 4
+            player_mv += 0.12
+            player_mv_extra -= 0.1
             game = True
         elif result == 2:
             game = False
