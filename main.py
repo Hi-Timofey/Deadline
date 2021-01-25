@@ -34,13 +34,16 @@ def draw_background():
 
 def start_the_game_from_menu():
 
+    global game
+    game = True
+
     # TODO Music
-    pygame.mixer.music.play(-1)
+    pygame.mixer.music.stop()
     surface.fill((0, 0, 0))
     LEVEL = 1
     gravity = False
 
-    while True:
+    while game:
         pl = Player(64, 64, gravity)
         fd = fire_dungeon.FireDungeon(
             create_level(31, 31, LEVEL * (LEVEL + 1)),
@@ -49,8 +52,11 @@ def start_the_game_from_menu():
         print(result)
         del fd
         del pl
-        LEVEL += 1
-        game = True
+        if result == 3:
+            LEVEL += 1
+            game = True
+        elif result == 2:
+            game = False
 
 
 def main():
@@ -91,8 +97,6 @@ def main():
         if not game:
             draw_background()
             main_menu.draw(surface)
-        else:
-            start_the_game_from_menu()
 
         # Credits(credit_list, surface, 'Sigma Five.otf').main()
         pygame.display.update()
