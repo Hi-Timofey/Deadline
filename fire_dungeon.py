@@ -17,7 +17,7 @@ FIRE_START = [2, 1]
 
 class FireDungeon():
 
-    def __init__(self, level, player, game_width, game_height,
+    def __init__(self, level, player, game_width, game_height, fire_speed,
                  game_over_func=None, gravity=False):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
@@ -29,6 +29,7 @@ class FireDungeon():
         self.DISPLAY = (self.WIN_WIDTH, self.WIN_HEIGHT)
         # Game
         self.level = level
+        self.fire_speed = fire_speed
         self.fire_counter = 0
         self.game_over_func = game_over_func
         self.platforms = []
@@ -156,7 +157,7 @@ class FireDungeon():
     def _fire_cycle(self):
         self.fire_counter += 1
         self.y = 0
-        if self.fire_counter == 120:
+        if self.fire_counter == self.fire_speed:
             print(self.fire_list_coords)
             for y_new, x_new in self.fire_list_coords:
                 f = Fire(x_new, y_new)
@@ -200,7 +201,7 @@ if __name__ == "__main__":
     gravity = False
     pl = Player(65, 64, gravity)
     level = create_level(31, 31, 1)
-    fd = FireDungeon(level, pl, 800, 800)
+    fd = FireDungeon(level, pl, 800, 800, 120)
     result = fd.run_game(gravity=False)
     if result == 2:
         print('-' * 10, 'DIED', '-' * 10)
