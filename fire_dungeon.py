@@ -52,7 +52,7 @@ class FireDungeon():
                         self.WIN_WIDTH//3, self.WIN_HEIGHT//3, 'Paused',
                         theme=pygame_menu.themes.THEME_BLUE)
         self.PAUSE_MENU.add_button('Continue', action=self._continue_game)
-        self.PAUSE_MENU.add_button('Save game', action=None)
+        self.PAUSE_MENU.add_button('Save game', action=self._return_game_val)
         self.PAUSE_MENU.add_button(
             'Quit to menu',
             action=self._stop_level)
@@ -188,6 +188,21 @@ class FireDungeon():
         pygame.mixer.Channel(1).stop()
         pygame.mixer.Channel(2).stop()
         return self.exit_code
+
+    def _return_game_val(self):
+        '''
+        Function for saving the game status
+
+        Эта функция должна ставитьв переменную exit_code
+        все необходимые данные из самой себя для переадачи их
+        в базу сохранений, чтобы потом можно было
+        загрузить это же состояние уровня занов
+
+        Код должен кончаться вот так
+        self.exit_code = [ data ,data, ...]
+        Комментарии подлежат удалению после реализации
+        '''
+        self.exit_code = None
 
     def _continue_game(self):
         self.paused = False
