@@ -95,7 +95,8 @@ class FireDungeon():
         exit_code = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
-            self._fire_cycle()
+            if not self.paused:
+                self._fire_cycle()
 
             for e in pygame.event.get():  # Обрабатываем события
                 if e.type == QUIT:
@@ -112,6 +113,7 @@ class FireDungeon():
 
                 if e.type == KEYDOWN and e.key == K_ESCAPE:
                     print('escape')
+                    self.paused = not self.paused
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True
 
@@ -140,10 +142,16 @@ class FireDungeon():
 
             # Next - drawing objects
             animatedEntities.update()
-            self.entities.update(
-                left, right, up, down, self.platforms, running)
-            self.player.update(
-                left, right, up, down, self.platforms, running)
+            if not self.paused:
+                self.entities.update(
+                    left, right, up, down, self.platforms, running)
+
+            if not self.paused:
+                self.player.update(
+                    left, right, up, down, self.platforms, running)
+            else:
+                self.player.update(
+                    False, False, False, False, self.platforms, False)
 
             # Centralize camera on player
             self.camera.update(self.player)
@@ -156,6 +164,8 @@ class FireDungeon():
 
         # 2 - died ; 3 - finished
         pygame.mixer.Channel(0).stop()
+        pygame.mixer.Channel(1).stop()
+        pygame.mixer.Channel(2).stop()
         return exit_code
 
     def _fire_cycle(self):
