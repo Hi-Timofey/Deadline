@@ -9,6 +9,7 @@ from create_level import create_level
 from player import Player
 
 
+pygame.mixer.pre_init()
 pygame.init()
 
 FPS = 60
@@ -26,6 +27,7 @@ background_image = pygame_menu.baseimage.BaseImage(
     image_path=get_data_path('background.png', 'img'))
 
 pygame.mixer.init()
+pygame.mixer.set_num_channels(2)
 
 
 def draw_background():

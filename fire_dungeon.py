@@ -90,6 +90,8 @@ class FireDungeon():
         running = False
         self.fire_list_coords = [FIRE_START]
 
+        pygame.mixer.Channel(0).set_volume(0.85)
+        pygame.mixer.Channel(0).play(pygame.mixer.Sound(get_data_path('fb_medium.ogg','music')), loops=-1)
         exit_code = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
@@ -159,12 +161,13 @@ class FireDungeon():
         self.fire_counter += 1
         self.y = 0
         if self.fire_counter == self.fire_speed:
-            print(self.fire_list_coords)
+            # pygame.mixer.Channel(2).set_volume(0.5)
+            # pygame.mixer.Channel(2).play(
+            #     pygame.mixer.Sound( get_data_path('fb_fast_start.ogg', 'music')),loops=2)
             for y_new, x_new in self.fire_list_coords:
                 f = Fire(x_new, y_new)
                 f.update(self.level, self.fire_list_coords)
-                print()
-                print(self.fire_list_coords)
+
             self.fire_counter = 0
             for row in self.level:  # вся строка
                 for col in row:  # каждый символ

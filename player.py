@@ -11,7 +11,7 @@ PLAYER_HEIGHT = 32
 PLAYER_COLOR = "#888888"
 
 JUMP_EXTRA_POWER = 1  # дополнительная сила прыжка
-ANIMATION_SUPER_SPEED_DELAY = 50  # скорость смены кадров при ускорении
+ANIMATION_SUPER_SPEED_DELAY = 45  # скорость смены кадров при ускорении
 
 # Gravity constants
 JUMP_POWER = 10
@@ -19,20 +19,20 @@ GRAVITY = 0.35
 
 
 FOOT_STEP = [get_data_path('footstep00.ogg', 'music'),
-        get_data_path('footstep01.ogg', 'music'),
-        get_data_path('footstep02.ogg', 'music'),
-        get_data_path('footstep03.ogg', 'music'),
-        get_data_path('footstep05.ogg', 'music')
+             get_data_path('footstep01.ogg', 'music'),
+             get_data_path('footstep02.ogg', 'music'),
+             get_data_path('footstep03.ogg', 'music'),
+             get_data_path('footstep05.ogg', 'music')
              ]
 RUN_STEP = [get_data_path('footstep06.ogg', 'music'),
-        get_data_path('footstep07.ogg', 'music'),
-        get_data_path('footstep08.ogg', 'music'),
-        get_data_path('footstep09.ogg', 'music')
-             ]
+            get_data_path('footstep07.ogg', 'music'),
+            get_data_path('footstep08.ogg', 'music'),
+            get_data_path('footstep09.ogg', 'music')
+            ]
 
 
 # Animation constants
-ANIMATION_DELAY = 90
+ANIMATION_DELAY = 85
 ANIMATION_RIGHT = [(get_data_path('r1.png', 'img')),
                    (get_data_path('r2.png', 'img')),
                    (get_data_path('r3.png', 'img')),
@@ -191,15 +191,12 @@ class Player(sprite.Sprite):
                 self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimStay.blit(self.image, (0, 0))
 
-        if not pygame.mixer.music.get_busy() and (left or right or down or up) and not running:
-            pygame.mixer.music.load(choice(FOOT_STEP))
-            pygame.mixer.music.set_volume(0.1)
-            pygame.mixer.music.play(1)
-        elif not pygame.mixer.music.get_busy() and running and (left or right):
-            pygame.mixer.music.unload()
-            pygame.mixer.music.load(choice(RUN_STEP))
-            pygame.mixer.music.set_volume(0.2)
-            pygame.mixer.music.play(1)
+        if not pygame.mixer.Channel(1).get_busy() and (left or right or down or up) and not running:
+            pygame.mixer.Channel(1).set_volume(0.22)
+            pygame.mixer.Channel(1).play(pygame.mixer.Sound(choice(FOOT_STEP)), loops=1)
+        elif not pygame.mixer.Channel(1).get_busy() and running and (left or right):
+            pygame.mixer.Channel(1).set_volume(0.15)
+            pygame.mixer.Channel(1).play(pygame.mixer.Sound(choice(RUN_STEP)), loops=1)
 
         # Don't know whether we are on the floor or not
         if self.gravity:
