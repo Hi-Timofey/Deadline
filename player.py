@@ -1,31 +1,39 @@
 import pygame
 import pyganim
 from pygame import *
-
+from random import choice
 import blocks
 from utils import *
 
-# Player basic variables
-MOVE_SPEED = 1
-PLAYER_WIDTH = 31  # нужен на один пиксель меньше чем размер блока, иначе взаимодействие багует
+# нужен на один пиксель меньше чем размер блока, иначе взаимодействие багует
+PLAYER_WIDTH = 31
 PLAYER_HEIGHT = 32
 PLAYER_COLOR = "#888888"
 
-MOVE_EXTRA_SPEED = 3  # Ускорение
 JUMP_EXTRA_POWER = 1  # дополнительная сила прыжка
-ANIMATION_SUPER_SPEED_DELAY = 1  # скорость смены кадров при ускорении
+ANIMATION_SUPER_SPEED_DELAY = 45  # скорость смены кадров при ускорении
 
 # Gravity constants
 JUMP_POWER = 10
 GRAVITY = 0.35
 
+
+FOOT_STEP = [get_data_path('footstep00.ogg', 'music'),
+             get_data_path('footstep01.ogg', 'music'),
+             get_data_path('footstep02.ogg', 'music'),
+             get_data_path('footstep03.ogg', 'music'),
+             get_data_path('footstep05.ogg', 'music')
+             ]
+RUN_STEP = [get_data_path('footstep06.ogg', 'music'),
+            get_data_path('footstep07.ogg', 'music'),
+            get_data_path('footstep08.ogg', 'music'),
+            get_data_path('footstep09.ogg', 'music')
+            ]
+
+
 # Animation constants
-ANIMATION_DELAY = 50
-'''
-TMP = pygame.transform.scale(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), [48, 48])
-char = TMP.subsurface(0, 0, 48, 48)
-char = pygame.transform.scale(char, (32, 32))
-'''
+
+ANIMATION_DELAY = 85
 
 ANIMATION_RIGHT = [(get_data_path('walk-1.png', 'character')),
                    (get_data_path('walk-2.png', 'character')),
@@ -71,11 +79,16 @@ ANIMATION_JUMP_RIGHT = [(get_data_path('up1.png', 'character')),
                         (get_data_path('up5.png', 'character')),
                         (get_data_path('up6.png', 'character'))]
 
-ANIMATION_STAY = [(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), 1)]
+ANIMATION_STAY = [
+    (pygame.image.load(
+        get_data_path(
+            'Woodcutter1.png',
+            'character')),
+     1)]
 
 
 class Player(sprite.Sprite):
-    def __init__(self, x, y, gravity=True):
+    def __init__(self, x, y, move_speed=1, mv_extra_multi=2, gravity=True):
         sprite.Sprite.__init__(self)
         # Starting coordinates
         self.start_x = x
@@ -85,8 +98,14 @@ class Player(sprite.Sprite):
         # Setting up basic speed
         self.xvel = 0
         self.yvel = 0
+
+        # Setting player basic speed (FLOAT) and extra (FLOAT)
+        self.move_speed = move_speed
+        self.mv_extra_multi = mv_extra_multi
+
         # параметр жизни персонажа, становиться False при заимодействии с огнём и шипами
-        # TODO можно реализовать его как int и сделать несколько жизней со счётчиком
+        # TODO можно реализовать его как int и сделать несколько жизней со
+        # счётчиком
         self.life = True
         self.end = False
 
@@ -139,7 +158,8 @@ class Player(sprite.Sprite):
             boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
         self.boltAnimJumpLeft = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpLeft.play()
-        self.boltAnimJumpLeftSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimJumpLeftSuperSpeed = pyganim.PygAnimation(
+                                                               boltAnimSuperSpeed)
         self.boltAnimJumpLeftSuperSpeed.play()
 
         boltAnim = []
@@ -149,7 +169,8 @@ class Player(sprite.Sprite):
             boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
         self.boltAnimJumpRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpRight.play()
-        self.boltAnimJumpRightSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimJumpRightSuperSpeed = pyganim.PygAnimation(
+                                                                boltAnimSuperSpeed)
         self.boltAnimJumpRightSuperSpeed.play()
 
         boltAnim = []
@@ -162,6 +183,7 @@ class Player(sprite.Sprite):
             boltAnim.append((anim, ANIMATION_DELAY))
 
     def update(self, left, right, up, down, platforms, running):
+        # TODO Speed up and down( eve running) fix
         '''
         Updating player sprite on the screen.
 
@@ -176,21 +198,22 @@ class Player(sprite.Sprite):
             self.boltAnimDeath.blit(self.image, (0, 0))
 
         if left:
-            self.xvel = -MOVE_SPEED  # Лево = x- n
+            self.xvel = -self.move_speed  # Лево = x- n
             self.image.fill(Color(PLAYER_COLOR))
             if running:  # если ускорение
-                self.xvel -= MOVE_EXTRA_SPEED  # то передвигаемся быстрее
+                self.xvel -= self.move_speed * self.mv_extra_multi  # то передвигаемся быстрее
                 if not up:  # и если не прыгаем
-                    self.boltAnimLeftSuperSpeed.blit(self.image, (0, 0))  # то отображаем быструю анимацию
+                    self.boltAnimLeftSuperSpeed.blit(
+                        self.image, (0, 0))  # то отображаем быструю анимацию
             elif up:  # для прыжка влево есть отдельная анимация
                 self.boltAnimJumpLeft.blit(self.image, (0, 0))
             else:
                 self.boltAnimLeft.blit(self.image, (0, 0))
         if right:
-            self.xvel = MOVE_SPEED  # Право = x + n
+            self.xvel = self.move_speed  # Право = x + n
             self.image.fill(Color(PLAYER_COLOR))
             if running:
-                self.xvel += MOVE_EXTRA_SPEED
+                self.xvel += self.move_speed * self.mv_extra_multi
                 if not up:
                     self.boltAnimRightSuperSpeed.blit(self.image, (0, 0))
             elif up:
@@ -215,11 +238,11 @@ class Player(sprite.Sprite):
             # In non-gravity mode logic of UP and DOWN same as
             # fot the RIGHT and LEFT, but on OY.
             if up:
-                self.yvel = -MOVE_SPEED
+                self.yvel = -self.move_speed
                 self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
             if down:
-                self.yvel = MOVE_SPEED
+                self.yvel = self.move_speed
                 self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimJump.blit(self.image, (0, 0))
             if not (up or down or left or right):
@@ -227,6 +250,18 @@ class Player(sprite.Sprite):
                 self.yvel = 0
                 self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimStay.blit(self.image, (0, 0))
+
+        if not pygame.mixer.Channel(1).get_busy() and (
+                left or right or down or up) and not running:
+            pygame.mixer.Channel(1).set_volume(0.22)
+            pygame.mixer.Channel(1).play(
+                pygame.mixer.Sound(
+                    choice(FOOT_STEP)), loops=1)
+        elif not pygame.mixer.Channel(1).get_busy() and running and (left or right):
+            pygame.mixer.Channel(1).set_volume(0.15)
+            pygame.mixer.Channel(1).play(
+                pygame.mixer.Sound(
+                    choice(RUN_STEP)), loops=1)
 
         # Don't know whether we are on the floor or not
         if self.gravity:
@@ -252,7 +287,8 @@ class Player(sprite.Sprite):
         for p in platforms:
             if sprite.collide_rect(
                     self, p):  # если есть пересечение платформы с игроком
-                if isinstance(p, blocks.Door):  # если пересакаемый блок - blocks.BlockDie
+                if isinstance(
+                        p, blocks.Door):  # если пересакаемый блок - blocks.BlockDie
                     self.win()  # выходим из лабиринта
                 if xvel > 0:  # если движется вправо
                     self.rect.right = p.rect.left  # то не движется вправо
@@ -269,16 +305,22 @@ class Player(sprite.Sprite):
                     if self.gravity:
                         self.yvel = 0  # и энергия прыжка пропадает
 
-                if isinstance(p, blocks.BlockDie):  # если пересакаемый блок - blocks.BlockDie
+                if isinstance(
+                        p, blocks.BlockDie):  # если пересакаемый блок - blocks.BlockDie
                     self.die()  # умираем
 
     def die(self):
+        ''' Life value false means that player died'''
         self.image.fill(Color(PLAYER_COLOR))
         self.boltAnimDeath.blit(self.image, (0, 0))
         self.life = False
+        pygame.mixer.music.unload()
+        time.wait(500)
 
     def win(self):
+        ''' End value true means that level is finished'''
         self.end = True
+        pygame.mixer.music.unload()
 
     def teleporting(self, goX, goY):
         self.rect.x = goX

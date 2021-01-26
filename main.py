@@ -5,8 +5,11 @@ import pygame
 import pygame_menu
 from db_related import Scores
 from utils import *
+from create_level import create_level
+from player import Player
 
 
+pygame.mixer.pre_init()
 pygame.init()
 
 FPS = 60
@@ -17,20 +20,82 @@ window_size = window_width, window_height = 800, 800
 game_size = g_width, g_height = 800, 800
 
 main_menu = None
-game = False
+credits, game = False, False
 surface = pygame.display.set_mode(window_size)
 
 background_image = pygame_menu.baseimage.BaseImage(
     image_path=get_data_path('background.png', 'img'))
 
 pygame.mixer.init()
+pygame.mixer.set_num_channels(4)
 
 
 def draw_background():
     background_image.draw(surface)
 
 
-def start_end_credits():
+def start_the_game_from_menu():
+
+    global game
+    game = True
+
+    # TODO Music
+    pygame.mixer.Channel(3).pause()
+    surface.fill((0, 0, 0))
+    LEVEL = 1
+    gravity = False
+    # Changing values
+
+    # Maze parameters (X * Y)
+    level_width = 15
+    level_height = 15
+    # FIRE SPEED
+    fire_speed = 90
+    # PLAYER MOVEMENT
+    player_mv = 1
+    player_mv_extra = 2
+
+    while game:
+        player = Player(
+            68,
+            68,
+            move_speed=player_mv,
+            mv_extra_multi=player_mv_extra,
+            gravity=gravity)
+
+        fire_dungeon_lvl = fire_dungeon.FireDungeon(
+            create_level(level_width, level_height, LEVEL),
+            player, g_width, g_height, fire_speed)
+        result = fire_dungeon_lvl.run_game(False)
+        print(result)
+        del fire_dungeon_lvl
+        del player
+        if result == 3:
+            LEVEL += 1
+            fire_speed -= 5
+            level_width += 4
+            level_height += 4
+            player_mv += 0.12
+            player_mv_extra -= 0.1
+            game = True
+        elif result == 2:
+            game = False
+    if not game:
+        pygame.mixer.Channel(3).unpause()
+
+
+def main():
+    pygame.mixer.Channel(3).set_volume(0.75)
+    pygame.mixer.Channel(3).play(pygame.mixer.Sound(get_data_path('menu_theme.wav','music')), loops=-1)
+    # pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
+
+    main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
+                                 theme=pygame_menu.themes.THEME_BLUE)
+    scores_menu = Scores(window_width, window_height)
+    main_menu.add_button('Play', start_the_game_from_menu)
+
+    main_menu.add_button('Scores', scores_menu.menu)
+
     credit_list = [
         "CREDITS - The Departed",
         " ",
@@ -40,32 +105,10 @@ def start_end_credits():
         "Mark Wahlberg - Dignam",
         "Martin Sheen - Queenan"]
     c = Credits(credit_list, surface, 'Sigma Five.otf')
-    c.main()
-
-
-def start_the_game():
-    game = True
-    fd = fire_dungeon.FireDungeon(g_width,g_height)
-    surface.fill((0,0,0))
-    fd.run_game(gravity=False)
-
-
-def main():
-    pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
-    pygame.mixer.music.play(-1)
-
-    main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
-                                 theme=pygame_menu.themes.THEME_BLUE)
-    scores_menu = Scores(window_width, window_height)
-    main_menu.add_button('Play', start_the_game)
-
-    main_menu.add_button('Scores', scores_menu.menu)
-    main_menu.add_button('About', start_end_credits)
+    main_menu.add_button('About', c.main)
     main_menu.add_button('Quit', pygame_menu.events.EXIT)
 
     while True:
-
-        draw_background()
 
         events = pygame.event.get()
         for event in events:
@@ -74,8 +117,14 @@ def main():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pass
 
-        main_menu.mainloop(surface, draw_background, fps_limit=FPS)
+            if not game:
+                main_menu.update(events)
 
+        if not game:
+            draw_background()
+            main_menu.draw(surface)
+
+        # Credits(credit_list, surface, 'Sigma Five.otf').main()
         pygame.display.update()
 
 

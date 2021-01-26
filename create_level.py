@@ -7,8 +7,8 @@ def show_matrix(matrix):
         for i in range(len(matrix[_])):
             pp = str(matrix[_][i]).replace('0', ' ')
             pp = str(matrix[_][i]).replace('1', '#')
-            print(pp, end="")
-        print()
+            # print(pp, end="")
+        # print()
 
 
 def check_lvl(lvl):
@@ -97,6 +97,16 @@ def restruct(matrix):
     return matrix
 
 
+def create_level(x_size, y_size, key, callback=None):
+    matrix_labirinth = [[1 for i in range(x_size)] for _ in range(y_size)]
+    show_matrix(matrix_labirinth)
+    matrix = generate(matrix_labirinth, int(key))
+    matrix = restruct(matrix)
+    if callback is not None:
+        callback()
+    return matrix
+
+
 if __name__ == '__main__':
     x_size = int(input('Задайте ширину лабиринта: '))
     y_size = int(input('Задайте длину лабиринта: '))
@@ -104,11 +114,3 @@ if __name__ == '__main__':
     matrix = generate(matrix_labirinth, int(input()))
     matrix = restruct(matrix)
     show_matrix(matrix)
-
-
-def create_level(x_size, y_size, key):
-    matrix_labirinth = [[1 for i in range(x_size)] for _ in range(y_size)]
-    show_matrix(matrix_labirinth)
-    matrix = generate(matrix_labirinth, int(key))
-    matrix = restruct(matrix)
-    return matrix

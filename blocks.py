@@ -13,9 +13,6 @@ PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
 
 ANIMATION_DELAY = 1
-# ANIMATION_BLOCKTELEPORT = [
-#             (get_data_path("sjf2r.png", 'img')),
-#             (get_data_path("sjf2r.png", 'img'))]
 COLOR = "#888888"
 
 ANIMATION_FIRE = [(get_data_path('Fogo_1.png', 'img')),
@@ -23,34 +20,23 @@ ANIMATION_FIRE = [(get_data_path('Fogo_1.png', 'img')),
                   (get_data_path('Fogo_3.png', 'img')),
                   (get_data_path('Fogo_4.png', 'img'))]
 
-TMP = pygame.transform.scale(pygame.image.load(get_data_path('Civilized-no-bg.png', 'texture')), [250, 250])
-WALL_TEXTURES = [TMP.subsurface(70, 50, 10, 10), TMP.subsurface(80, 50, 10, 10), TMP.subsurface(50, 90, 10, 10),
-                 TMP.subsurface(40, 90, 10, 10), TMP.subsurface(30, 90, 10, 10)]
+walls_source = pygame.transform.scale(pygame.image.load(
+    get_data_path('Civilized-no-bg.png', 'texture')), [250, 250])
+WALL_TEXTURES = [
+    walls_source.subsurface(
+        70, 50, 10, 10), walls_source.subsurface(
+            80, 50, 10, 10), walls_source.subsurface(
+                50, 90, 10, 10), walls_source.subsurface(
+                    40, 90, 10, 10), walls_source.subsurface(
+                        30, 90, 10, 10)]
 
 
 class Platform(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
-        wall_textures = []
         self.image = Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
-        '''
-        tmp = pygame.transform.scale(pygame.image.load(get_data_path('Civilized.png', 'texture')), [250, 250])
-        wall_textures.append(tmp.subsurface(70, 50, 10, 10))
-        wall_textures.append(tmp.subsurface(80, 50, 10, 10))
-        wall_textures.append(tmp.subsurface(50, 80, 10, 10))
-        wall_textures.append(tmp.subsurface(40, 80, 10, 10))
-        wall_textures.append(tmp.subsurface(60, 80, 10, 10))
-        '''
-        img = pygame.transform.scale(WALL_TEXTURES[randint(1, 4)], (32, 32))
-        self.image = img
-        '''
-        picture = image.load(
-            get_data_path(f"wall_64x64_{randint(1, 15)}.png",
-                          'img')).convert()
-        img = pygame.transform.scale(picture, (32, 32))
-        self.image = img
-        '''
-        # self.image.fill(Color(PLATFORM_COLOR))
+        self.image = pygame.transform.scale(
+            WALL_TEXTURES[randint(1, 4)], (32, 32))
         self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 
 
@@ -62,31 +48,25 @@ class BlockDie(Platform):
             boltAnim.append((anim, ANIMATION_DELAY))
         self.boltAnim = pyganim.PygAnimation(boltAnim)
         self.boltAnim.play()
-        img = pygame.image.load((get_data_path('Fogo_1.png', 'img')))
-        self.image = img
+        self.image = pygame.image.load((get_data_path('Fogo_1.png', 'img')))
 
 
 class Door(Platform):
+    # TODO DOCS !
+
     def __init__(self, x, y):
         Platform.__init__(self, x, y)
-        door = TMP.subsurface(70, 10, 10, 10)
-        img = pygame.transform.scale(door, (32, 32))
-        self.image = img
+        door = walls_source.subsurface(70, 10, 10, 10)
+        self.image = pygame.transform.scale(door, (32, 32))
 
 
 class ClosedDoor(Platform):
+    # TODO DOCS !
+
     def __init__(self, x, y):
         Platform.__init__(self, x, y)
-        door = TMP.subsurface(10, 10, 10, 10)
-        img = pygame.transform.scale(door, (32, 32))
-        self.image = img
-
-
-'''
-    def update(self):
-        self.image.fill(Color(PLATFORM_COLOR))
-        self.boltAnim.blit(self.image, (0, 0))
-'''
+        door = walls_source.subsurface(10, 10, 10, 10)
+        self.image = pygame.transform.scale(door, (32, 32))
 
 
 class BlockTeleport(Platform):
