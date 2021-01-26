@@ -112,6 +112,7 @@ class FireDungeon():
                     print('escape')
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True
+
                 if e.type == KEYDOWN and e.key == K_RIGHT:
                     right = True
                 if e.type == KEYDOWN and e.key == K_UP:
@@ -198,6 +199,7 @@ class FireDungeon():
 
 
 if __name__ == "__main__":
+    pygame.mixer.init()
     gravity = False
     mv = 1
     mv_extra = 2
