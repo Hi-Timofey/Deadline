@@ -51,9 +51,11 @@ class FireDungeon():
         self.PAUSE_MENU = pygame_menu.Menu(
                         self.WIN_WIDTH//3, self.WIN_HEIGHT//3, 'Paused',
                         theme=pygame_menu.themes.THEME_BLUE)
-        self.PAUSE_MENU.add_button('Continue', action=None)
-        self.PAUSE_MENU.add_button('Scores', action=None)
-        self.PAUSE_MENU.add_button('Quit to main menu', action=pygame_menu.events.BACK)
+        self.PAUSE_MENU.add_button('Continue', action=self._continue_game)
+        self.PAUSE_MENU.add_button('Save game', action=None)
+        self.PAUSE_MENU.add_button(
+            'Quit to menu',
+            action=self._stop_level)
 
     def run_game(self, gravity):
         '''
@@ -106,7 +108,7 @@ class FireDungeon():
                     'fb_medium.ogg',
                     'music')),
             loops=-1)
-        exit_code = 0
+        self.exit_code = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
             if not self.paused:
@@ -119,12 +121,12 @@ class FireDungeon():
                 # Player died
                 if not self.player.life:
                     self.run = False
-                    exit_code = 2
+                    self.exit_code = 2
 
                 # Player ended this level
                 if self.player.end:
                     self.run = False
-                    exit_code = 3
+                    self.exit_code = 3
 
                 if e.type == KEYDOWN and e.key == K_ESCAPE:
                     print('escape')
@@ -181,11 +183,19 @@ class FireDungeon():
         if self.game_over_func is not None:
             self.game_over_func()
 
-        # 2 - died ; 3 - finished
+        # 1 - leaved from menu ; 2 - died ; 3 - finished
         pygame.mixer.Channel(0).stop()
         pygame.mixer.Channel(1).stop()
         pygame.mixer.Channel(2).stop()
-        return exit_code
+        return self.exit_code
+
+    def _continue_game(self):
+        self.paused = False
+
+    def _stop_level(self):
+        self.paused = False
+        self.run = False
+        self.exit_code = 1
 
     def _fire_cycle(self):
         self.fire_counter += 1
