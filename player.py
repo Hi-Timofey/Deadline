@@ -32,22 +32,53 @@ RUN_STEP = [get_data_path('footstep06.ogg', 'music'),
 
 
 # Animation constants
+
 ANIMATION_DELAY = 85
-ANIMATION_RIGHT = [(get_data_path('r1.png', 'img')),
-                   (get_data_path('r2.png', 'img')),
-                   (get_data_path('r3.png', 'img')),
-                   (get_data_path('r4.png', 'img')),
-                   (get_data_path('r5.png', 'img'))]
 
-ANIMATION_LEFT = [(get_data_path('l1.png', 'img')),
-                  (get_data_path('l2.png', 'img')),
-                  (get_data_path('l3.png', 'img')),
-                  (get_data_path('l4.png', 'img')),
-                  (get_data_path('l5.png', 'img'))]
+ANIMATION_RIGHT = [(get_data_path('walk-1.png', 'character')),
+                   (get_data_path('walk-2.png', 'character')),
+                   (get_data_path('walk-3.png', 'character')),
+                   (get_data_path('walk-4.png', 'character')),
+                   (get_data_path('walk-5.png', 'character')),
+                   (get_data_path('walk-6.png', 'character'))]
 
-ANIMATION_JUMP_LEFT = [(get_data_path('jl.png', 'img'), 1)]
-ANIMATION_JUMP_RIGHT = [(get_data_path('jr.png', 'img'), 1)]
-ANIMATION_JUMP = [(get_data_path('j.png', 'img'), 1)]
+ANIMATION_DEATH = [(get_data_path('death1.png', 'character')),
+                   (get_data_path('death2.png', 'character')),
+                   (get_data_path('death3.png', 'character')),
+                   (get_data_path('death2.png', 'character')),
+                   (get_data_path('death3.png', 'character')),
+                   (get_data_path('death2.png', 'character')),
+                   (get_data_path('death3.png', 'character')),
+                   (get_data_path('death2.png', 'character'))]
+
+ANIMATION_LEFT = [(get_data_path('walk-l1.png', 'character')),
+                  (get_data_path('walk-l2.png', 'character')),
+                  (get_data_path('walk-l3.png', 'character')),
+                  (get_data_path('walk-l4.png', 'character')),
+                  (get_data_path('walk-l5.png', 'character')),
+                  (get_data_path('walk-l6.png', 'character'))]
+
+ANIMATION_JUMP = [(get_data_path('up1.png', 'character')),
+                  (get_data_path('up2.png', 'character')),
+                  (get_data_path('up3.png', 'character')),
+                  (get_data_path('up4.png', 'character')),
+                  (get_data_path('up5.png', 'character')),
+                  (get_data_path('up6.png', 'character'))]
+
+ANIMATION_JUMP_LEFT = [(get_data_path('up1.png', 'character')),
+                       (get_data_path('up2.png', 'character')),
+                       (get_data_path('up3.png', 'character')),
+                       (get_data_path('up4.png', 'character')),
+                       (get_data_path('up5.png', 'character')),
+                       (get_data_path('up6.png', 'character'))]
+
+ANIMATION_JUMP_RIGHT = [(get_data_path('up1.png', 'character')),
+                        (get_data_path('up2.png', 'character')),
+                        (get_data_path('up3.png', 'character')),
+                        (get_data_path('up4.png', 'character')),
+                        (get_data_path('up5.png', 'character')),
+                        (get_data_path('up6.png', 'character'))]
+
 ANIMATION_STAY = [
     (pygame.image.load(
         get_data_path(
@@ -110,18 +141,44 @@ class Player(sprite.Sprite):
         self.boltAnimLeftSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
         self.boltAnimLeftSuperSpeed.play()
 
+        boltAnim = []
+        for anim in ANIMATION_DEATH:
+            boltAnim.append((anim, ANIMATION_DELAY))
+        self.boltAnimDeath = pyganim.PygAnimation(boltAnim)
+        self.boltAnimDeath.play()
+
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
         self.boltAnimStay.blit(self.image, (0, 0))  # По-умолчанию, стоим
 
-        self.boltAnimJumpLeft = pyganim.PygAnimation(ANIMATION_JUMP_LEFT)
+        boltAnim = []
+        boltAnimSuperSpeed = []
+        for anim in ANIMATION_LEFT:
+            boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
+        self.boltAnimJumpLeft = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpLeft.play()
+        self.boltAnimJumpLeftSuperSpeed = pyganim.PygAnimation(
+                                                               boltAnimSuperSpeed)
+        self.boltAnimJumpLeftSuperSpeed.play()
 
-        self.boltAnimJumpRight = pyganim.PygAnimation(ANIMATION_JUMP_RIGHT)
+        boltAnim = []
+        boltAnimSuperSpeed = []
+        for anim in ANIMATION_RIGHT:
+            boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
+        self.boltAnimJumpRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpRight.play()
+        self.boltAnimJumpRightSuperSpeed = pyganim.PygAnimation(
+                                                                boltAnimSuperSpeed)
+        self.boltAnimJumpRightSuperSpeed.play()
 
-        self.boltAnimJump = pyganim.PygAnimation(ANIMATION_JUMP)
+        boltAnim = []
+        for anim in ANIMATION_JUMP:
+            boltAnim.append((anim, ANIMATION_DELAY))
+        self.boltAnimJump = pyganim.PygAnimation(boltAnim)
         self.boltAnimJump.play()
+
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
 
@@ -136,6 +193,9 @@ class Player(sprite.Sprite):
 
         Also, separated animations for each directions of the player.
         '''
+        if not self.life:
+            self.image.fill(Color(PLAYER_COLOR))
+            self.boltAnimDeath.blit(self.image, (0, 0))
 
         if left:
             self.xvel = -self.move_speed  # Лево = x- n
@@ -191,12 +251,17 @@ class Player(sprite.Sprite):
                 self.image.fill(Color(PLAYER_COLOR))
                 self.boltAnimStay.blit(self.image, (0, 0))
 
-        if not pygame.mixer.Channel(1).get_busy() and (left or right or down or up) and not running:
+        if not pygame.mixer.Channel(1).get_busy() and (
+                left or right or down or up) and not running:
             pygame.mixer.Channel(1).set_volume(0.22)
-            pygame.mixer.Channel(1).play(pygame.mixer.Sound(choice(FOOT_STEP)), loops=1)
+            pygame.mixer.Channel(1).play(
+                pygame.mixer.Sound(
+                    choice(FOOT_STEP)), loops=1)
         elif not pygame.mixer.Channel(1).get_busy() and running and (left or right):
             pygame.mixer.Channel(1).set_volume(0.15)
-            pygame.mixer.Channel(1).play(pygame.mixer.Sound(choice(RUN_STEP)), loops=1)
+            pygame.mixer.Channel(1).play(
+                pygame.mixer.Sound(
+                    choice(RUN_STEP)), loops=1)
 
         # Don't know whether we are on the floor or not
         if self.gravity:
@@ -246,6 +311,8 @@ class Player(sprite.Sprite):
 
     def die(self):
         ''' Life value false means that player died'''
+        self.image.fill(Color(PLAYER_COLOR))
+        self.boltAnimDeath.blit(self.image, (0, 0))
         self.life = False
         pygame.mixer.music.unload()
         time.wait(500)
