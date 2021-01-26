@@ -1,5 +1,6 @@
 import pygame
 from pygame import *
+import pygame_menu
 from utils import *
 from camera import Camera
 from blocks import Platform, BlockDie, Door, ClosedDoor
@@ -46,6 +47,16 @@ class FireDungeon():
             self.total_level_width,
             self.total_level_height)
 
+        # Pause menu for level
+        self.PAUSE_MENU = pygame_menu.Menu(
+                        self.WIN_WIDTH//3, self.WIN_HEIGHT//3, 'Paused',
+                        theme=pygame_menu.themes.THEME_BLUE)
+        self.PAUSE_MENU.add_button('Continue', action=self._continue_game)
+        self.PAUSE_MENU.add_button('Save game', action=None)
+        self.PAUSE_MENU.add_button(
+            'Quit to menu',
+            action=self._stop_level)
+
     def run_game(self, gravity):
         '''
             Main cycle of the game.
@@ -91,27 +102,35 @@ class FireDungeon():
         self.fire_list_coords = [FIRE_START]
 
         pygame.mixer.Channel(0).set_volume(0.85)
-        pygame.mixer.Channel(0).play(pygame.mixer.Sound(get_data_path('fb_medium.ogg','music')), loops=-1)
-        exit_code = 0
+        pygame.mixer.Channel(0).play(
+            pygame.mixer.Sound(
+                get_data_path(
+                    'fb_medium.ogg',
+                    'music')),
+            loops=-1)
+        self.exit_code = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
-            self._fire_cycle()
+            if not self.paused:
+                self._fire_cycle()
 
-            for e in pygame.event.get():  # Обрабатываем события
+            events = pygame.event.get()
+            for e in events:  # Обрабатываем события
                 if e.type == QUIT:
                     self.run = False
                 # Player died
                 if not self.player.life:
                     self.run = False
-                    exit_code = 2
+                    self.exit_code = 2
 
                 # Player ended this level
                 if self.player.end:
                     self.run = False
-                    exit_code = 3
+                    self.exit_code = 3
 
                 if e.type == KEYDOWN and e.key == K_ESCAPE:
                     print('escape')
+                    self.paused = not self.paused
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True
 
@@ -134,29 +153,49 @@ class FireDungeon():
                     running = True
                 if e.type == KEYUP and e.key == K_LSHIFT:
                     running = False
+                if self.paused:
+                    self.PAUSE_MENU.update(events)
 
             # First - backgorund drawing
             self.screen.blit(bg, (0, 0))
 
             # Next - drawing objects
-            animatedEntities.update()
-            self.entities.update(
-                left, right, up, down, self.platforms, running)
-            self.player.update(
-                left, right, up, down, self.platforms, running)
+            if not self.paused:
+                animatedEntities.update()
+                self.entities.update(
+                    left, right, up, down, self.platforms, running)
+
+            if not self.paused:
+                self.player.update(
+                    left, right, up, down, self.platforms, running)
+            else:
+                self.player.update(
+                    False, False, False, False, self.platforms, False)
 
             # Centralize camera on player
             self.camera.update(self.player)
             for e in self.entities:
                 self.screen.blit(e.image, self.camera.apply(e))
 
+            if self.paused:
+                self.PAUSE_MENU.draw(self.screen)
             pygame.display.update()
         if self.game_over_func is not None:
             self.game_over_func()
 
-        # 2 - died ; 3 - finished
+        # 1 - leaved from menu ; 2 - died ; 3 - finished
         pygame.mixer.Channel(0).stop()
-        return exit_code
+        pygame.mixer.Channel(1).stop()
+        pygame.mixer.Channel(2).stop()
+        return self.exit_code
+
+    def _continue_game(self):
+        self.paused = False
+
+    def _stop_level(self):
+        self.paused = False
+        self.run = False
+        self.exit_code = 1
 
     def _fire_cycle(self):
         self.fire_counter += 1
@@ -164,7 +203,8 @@ class FireDungeon():
         if self.fire_counter == self.fire_speed:
             # pygame.mixer.Channel(2).set_volume(0.5)
             # pygame.mixer.Channel(2).play(
-            #     pygame.mixer.Sound( get_data_path('fb_fast_start.ogg', 'music')),loops=2)
+            # pygame.mixer.Sound( get_data_path('fb_fast_start.ogg',
+            # 'music')),loops=2)
             for y_new, x_new in self.fire_list_coords:
                 f = Fire(x_new, y_new)
                 f.update(self.level, self.fire_list_coords)

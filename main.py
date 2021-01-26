@@ -70,7 +70,9 @@ def start_the_game_from_menu():
         print(result)
         del fire_dungeon_lvl
         del player
-        if result == 3:
+        if result == 1:
+            game = False
+        elif result == 3:
             LEVEL += 1
             fire_speed -= 5
             level_width += 4
@@ -86,7 +88,12 @@ def start_the_game_from_menu():
 
 def main():
     pygame.mixer.Channel(3).set_volume(0.75)
-    pygame.mixer.Channel(3).play(pygame.mixer.Sound(get_data_path('menu_theme.wav','music')), loops=-1)
+    pygame.mixer.Channel(3).play(
+        pygame.mixer.Sound(
+            get_data_path(
+                'menu_theme.wav',
+                'music')),
+        loops=-1)
     # pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
 
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
