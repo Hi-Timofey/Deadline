@@ -53,6 +53,7 @@ class FireDungeon():
                         theme=pygame_menu.themes.THEME_BLUE)
         self.PAUSE_MENU.add_button('Continue', action=None)
         self.PAUSE_MENU.add_button('Scores', action=None)
+        self.PAUSE_MENU.add_button('Quit to main menu', action=pygame_menu.events.BACK)
 
     def run_game(self, gravity):
         '''
@@ -111,7 +112,8 @@ class FireDungeon():
             if not self.paused:
                 self._fire_cycle()
 
-            for e in pygame.event.get():  # Обрабатываем события
+            events = pygame.event.get()
+            for e in events:  # Обрабатываем события
                 if e.type == QUIT:
                     self.run = False
                 # Player died
@@ -150,7 +152,7 @@ class FireDungeon():
                 if e.type == KEYUP and e.key == K_LSHIFT:
                     running = False
                 if self.paused:
-                    self.PAUSE_MENU.update(pygame.event.get())
+                    self.PAUSE_MENU.update(events)
 
             # First - backgorund drawing
             self.screen.blit(bg, (0, 0))
