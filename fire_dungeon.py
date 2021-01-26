@@ -2,22 +2,22 @@ import pygame
 from pygame import *
 from utils import *
 from camera import Camera
-from blocks import Platform, BlockDie
+from blocks import Platform, BlockDie, Door, ClosedDoor
 from player import Player
 from create_level import create_level
 from fire import Fire, show_matrix
 
 
-BACKGROUND_COLOR = "#004400"
+BACKGROUND_COLOR = "#000000"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-FIRE_START = [1, 1]
+FIRE_START = [2, 1]
 
 
 class FireDungeon():
 
-    def __init__(self, level, player, game_width, game_height,
+    def __init__(self, level, player, game_width, game_height, fire_speed,
                  game_over_func=None, gravity=False):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
@@ -29,6 +29,7 @@ class FireDungeon():
         self.DISPLAY = (self.WIN_WIDTH, self.WIN_HEIGHT)
         # Game
         self.level = level
+        self.fire_speed = fire_speed
         self.fire_counter = 0
         self.game_over_func = game_over_func
         self.platforms = []
@@ -44,6 +45,141 @@ class FireDungeon():
             self._camera_configure,
             self.total_level_width,
             self.total_level_height)
+
+    def run_game(self, gravity):
+        '''
+            Main cycle of the game.
+        '''
+        # Initialize pygame for this level
+        self.screen = pygame.display.set_mode(self.WIN_SIZE)
+        pygame.display.set_caption("Fire Dungeon")
+        bg = Surface(self.WIN_SIZE)
+        bg.fill(Color(BACKGROUND_COLOR))
+
+        # Directions of the player
+        left = right = False
+        up = False
+        down = gravity
+        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
+        # Image for platforms
+        # все анимированные объекты, за исключением героя
+        animatedEntities = pygame.sprite.Group()
+        for row in self.level:  # вся строка
+            for col in row:  # каждый символ
+                self.seed += 1
+                if col == "#":
+                    pf = Platform(self.x, self.y)
+                    self.entities.add(pf)
+                    self.platforms.append(pf)
+                if col == "!":
+                    bd = BlockDie(self.x, self.y)
+                    self.entities.add(bd)
+                    self.platforms.append(bd)
+                if col == "C":
+                    pf = ClosedDoor(self.x, self.y)
+                    self.entities.add(pf)
+                    self.platforms.append(pf)
+                if col == "E":
+                    pf = Door(self.x, self.y)
+                    self.entities.add(pf)
+                    self.platforms.append(pf)
+                self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+            self.y += PLATFORM_HEIGHT  # то же самое и с высотой
+            self.x = 0  # на каждой новой строчке начинаем с нуля
+
+        running = False
+        self.fire_list_coords = [FIRE_START]
+
+        pygame.mixer.Channel(0).set_volume(0.85)
+        pygame.mixer.Channel(0).play(pygame.mixer.Sound(get_data_path('fb_medium.ogg','music')), loops=-1)
+        exit_code = 0
+        while self.run:  # Основной цикл программы
+            self.timer.tick(60)
+            self._fire_cycle()
+
+            for e in pygame.event.get():  # Обрабатываем события
+                if e.type == QUIT:
+                    self.run = False
+                # Player died
+                if not self.player.life:
+                    self.run = False
+                    exit_code = 2
+
+                # Player ended this level
+                if self.player.end:
+                    self.run = False
+                    exit_code = 3
+
+                if e.type == KEYDOWN and e.key == K_ESCAPE:
+                    print('escape')
+                if e.type == KEYDOWN and e.key == K_LEFT:
+                    left = True
+
+                if e.type == KEYDOWN and e.key == K_RIGHT:
+                    right = True
+                if e.type == KEYDOWN and e.key == K_UP:
+                    up = True
+                if e.type == KEYDOWN and e.key == K_DOWN:
+                    down = True
+                if e.type == KEYUP and e.key == K_UP:
+                    up = False
+                if e.type == KEYUP and e.key == K_RIGHT:
+                    right = False
+                if e.type == KEYUP and e.key == K_LEFT:
+                    left = False
+                if e.type == KEYUP and e.key == K_DOWN:
+                    down = False
+
+                if e.type == KEYDOWN and e.key == K_LSHIFT:
+                    running = True
+                if e.type == KEYUP and e.key == K_LSHIFT:
+                    running = False
+
+            # First - backgorund drawing
+            self.screen.blit(bg, (0, 0))
+
+            # Next - drawing objects
+            animatedEntities.update()
+            self.entities.update(
+                left, right, up, down, self.platforms, running)
+            self.player.update(
+                left, right, up, down, self.platforms, running)
+
+            # Centralize camera on player
+            self.camera.update(self.player)
+            for e in self.entities:
+                self.screen.blit(e.image, self.camera.apply(e))
+
+            pygame.display.update()
+        if self.game_over_func is not None:
+            self.game_over_func()
+
+        # 2 - died ; 3 - finished
+        pygame.mixer.Channel(0).stop()
+        return exit_code
+
+    def _fire_cycle(self):
+        self.fire_counter += 1
+        self.y = 0
+        if self.fire_counter == self.fire_speed:
+            # pygame.mixer.Channel(2).set_volume(0.5)
+            # pygame.mixer.Channel(2).play(
+            #     pygame.mixer.Sound( get_data_path('fb_fast_start.ogg', 'music')),loops=2)
+            for y_new, x_new in self.fire_list_coords:
+                f = Fire(x_new, y_new)
+                f.update(self.level, self.fire_list_coords)
+
+            self.fire_counter = 0
+            for row in self.level:  # вся строка
+                for col in row:  # каждый символ
+                    self.seed += 1
+                    if col == "!":
+                        bd = BlockDie(self.x, self.y)
+                        self.entities.add(bd)
+                        self.platforms.append(bd)
+                    self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+                self.y += PLATFORM_HEIGHT  # то же самое и с высотой
+                self.x = 0  # на каждой новой строчке начинаем с нуля
 
     def _camera_configure(self, camera, target_rect):
         '''
@@ -65,139 +201,24 @@ class FireDungeon():
 
         return Rect(left, top, width, height)
 
-    def _fire_cycle(self):
-        self.fire_counter += 1
-        self.y = 0
-        if self.fire_counter == 120:
-            print(self.fire_list_coords)
-            for y_new, x_new in self.fire_list_coords:
-                f = Fire(x_new, y_new)
-                f.update(self.level, self.fire_list_coords)
-                print()
-                print(self.fire_list_coords)
-            self.fire_counter = 0
-            for row in self.level:  # вся строка
-                for col in row:  # каждый символ
-                    self.seed += 1
-                    if col == "!":
-                        bd = BlockDie(self.x, self.y, self.fire_image)
-                        self.entities.add(bd)
-                        self.platforms.append(bd)
-                    self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
-                self.y += PLATFORM_HEIGHT  # то же самое и с высотой
-                self.x = 0  # на каждой новой строчке начинаем с нуля
-
-    def run_game(self, gravity):
-        '''
-            Main cycle of the game.
-        '''
-        # Initialize pygame for this level
-        self.screen = pygame.display.set_mode(self.WIN_SIZE)
-        pygame.display.set_caption("Fire Dungeon")
-        bg = Surface(self.WIN_SIZE)
-        bg.fill(Color(BACKGROUND_COLOR))
-
-        # Default - player is NOT moving anywhere
-        # Directions of the player
-        left = right = False
-        up = False
-        down = gravity
-
-        # Images TODO mb leave to global for resource economy
-        self.fire_image = image.load(
-            get_data_path(
-                'ship.png',
-                'img')).convert_alpha()
-        self.platform_image = image.load(
-            get_data_path(
-                "wall_64x64_1.png",
-                'img')).convert()
-
-        # Level generating
-        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
-        # Image for platforms
-        for row in self.level:  # вся строка
-            for col in row:  # каждый символ
-                self.seed += 1
-                if col == "#":
-                    pf = Platform(self.x, self.y, self.platform_image)
-                    self.entities.add(pf)
-                    self.platforms.append(pf)
-                if col == "!":
-                    bd = BlockDie(self.x, self.y, self.fire_image)
-                    self.entities.add(bd)
-                    self.platforms.append(bd)
-                self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
-            self.y += PLATFORM_HEIGHT  # то же самое и с высотой
-            self.x = 0  # на каждой новой строчке начинаем с нуля
-
-        running = False
-        self.fire_list_coords = [FIRE_START]
-
-        exit_code = 0
-        while self.run:  # Основной цикл программы
-            self.timer.tick(60)
-
-            self._fire_cycle()
-
-            for e in pygame.event.get():  # Обрабатываем события
-                if e.type == QUIT:
-                    self.run = False
-                    # смерть персонажа
-                if not self.player.life:
-                    self.run = False
-                    exit_code = 1
-
-                if e.type == KEYDOWN and e.key == K_ESCAPE:
-                    print('escape')
-                if e.type == KEYDOWN and e.key == K_LEFT:
-                    left = True
-                if e.type == KEYDOWN and e.key == K_RIGHT:
-                    right = True
-                if e.type == KEYDOWN and e.key == K_UP:
-                    up = True
-                if e.type == KEYDOWN and e.key == K_DOWN:
-                    down = True
-                if e.type == KEYUP and e.key == K_UP:
-                    up = False
-                if e.type == KEYUP and e.key == K_RIGHT:
-                    right = False
-                if e.type == KEYUP and e.key == K_LEFT:
-                    left = False
-                if e.type == KEYUP and e.key == K_DOWN:
-                    down = False
-
-                if e.type == KEYDOWN and e.key == K_LSHIFT:
-                    running = True
-                if e.type == KEYUP and e.key == K_LSHIFT:
-                    running = False
-            # First - backgorund drawing
-            self.screen.blit(bg, (0, 0))
-
-            # Next - drawing objects
-            self.entities.update(
-                left, right, up, down, self.platforms, running)
-            self.player.update(
-                left, right, up, down, self.platforms, running)
-
-            # Centralize camera on player
-            self.camera.update(self.player)
-            for e in self.entities:
-                self.screen.blit(e.image, self.camera.apply(e))
-
-            pygame.display.update()
-        if self.game_over_func is not None:
-            self.game_over_func()
-        return exit_code
-
 
 if __name__ == "__main__":
+    pygame.mixer.init()
     gravity = False
-    pl = Player(64, 64, gravity)
-    level = create_level(31, 31, 6)
-    fd = FireDungeon(level, pl, 800, 800)
-    fd.run_game(gravity=False)
+    mv = 1
+    mv_extra = 2
 
-    # level = create_level(31, 31, 2)
-    # fd = FireDungeon(level, 800, 800)
-    # fd.run_game(gravity=False)
+    player = Player(
+        64,
+        64,
+        move_speed=mv,
+        mv_extra_multi=mv_extra,
+        gravity=gravity)
+
+    level = create_level(31, 31, 1)
+    fire_level = FireDungeon(level, player, 800, 800, 120)
+    result = fire_level.run_game(gravity=False)
+    if result == 2:
+        print('-' * 10, 'DIED', '-' * 10)
+    if result == 3:
+        print('-' * 10, 'COMPLETED', '-' * 10)

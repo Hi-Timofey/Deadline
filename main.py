@@ -9,6 +9,7 @@ from create_level import create_level
 from player import Player
 
 
+pygame.mixer.pre_init()
 pygame.init()
 
 FPS = 60
@@ -26,6 +27,7 @@ background_image = pygame_menu.baseimage.BaseImage(
     image_path=get_data_path('background.png', 'img'))
 
 pygame.mixer.init()
+pygame.mixer.set_num_channels(4)
 
 
 def draw_background():
@@ -33,26 +35,59 @@ def draw_background():
 
 
 def start_the_game_from_menu():
+
+    global game
+    game = True
+
+    # TODO Music
+    pygame.mixer.Channel(3).pause()
     surface.fill((0, 0, 0))
     LEVEL = 1
     gravity = False
+    # Changing values
 
-    while True:
-        pl = Player(64, 64, gravity)
-        fd = fire_dungeon.FireDungeon(
-            create_level(31, 31, LEVEL * (LEVEL + 1)),
-            pl, g_width, g_height)
-        result = fd.run_game(False)
+    # Maze parameters (X * Y)
+    level_width = 15
+    level_height = 15
+    # FIRE SPEED
+    fire_speed = 90
+    # PLAYER MOVEMENT
+    player_mv = 1
+    player_mv_extra = 2
+
+    while game:
+        player = Player(
+            68,
+            68,
+            move_speed=player_mv,
+            mv_extra_multi=player_mv_extra,
+            gravity=gravity)
+
+        fire_dungeon_lvl = fire_dungeon.FireDungeon(
+            create_level(level_width, level_height, LEVEL),
+            player, g_width, g_height, fire_speed)
+        result = fire_dungeon_lvl.run_game(False)
         print(result)
-        del fd
-        del pl
-        LEVEL += 1
-        game = True
+        del fire_dungeon_lvl
+        del player
+        if result == 3:
+            LEVEL += 1
+            fire_speed -= 5
+            level_width += 4
+            level_height += 4
+            player_mv += 0.12
+            player_mv_extra -= 0.1
+            game = True
+        elif result == 2:
+            game = False
+    if not game:
+        pygame.mixer.Channel(3).unpause()
 
 
 def main():
-    pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
-    pygame.mixer.music.play(-1)
+    pygame.mixer.Channel(3).set_volume(0.75)
+    pygame.mixer.Channel(3).play(pygame.mixer.Sound(get_data_path('menu_theme.wav','music')), loops=-1)
+    # pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
 
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=pygame_menu.themes.THEME_BLUE)
@@ -88,8 +123,6 @@ def main():
         if not game:
             draw_background()
             main_menu.draw(surface)
-        else:
-            start_the_game_from_menu()
 
         # Credits(credit_list, surface, 'Sigma Five.otf').main()
         pygame.display.update()

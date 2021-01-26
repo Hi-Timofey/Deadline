@@ -92,16 +92,9 @@ def restruct(matrix):
                 matrix[_][i] = char_border
         matrix[_].append(char_border)
     matrix.append([char_border for i in range(width + 2)])
+    matrix[1][0] = "C"
+    matrix[len(matrix)-2][len(matrix[0])-1] = "E"
     return matrix
-
-
-if __name__ == '__main__':
-    x_size = int(input('Задайте ширину лабиринта: '))
-    y_size = int(input('Задайте длину лабиринта: '))
-    matrix_labirinth = [[1 for i in range(x_size)] for _ in range(y_size)]
-    matrix = generate(matrix_labirinth, int(input()))
-    matrix = restruct(matrix)
-    show_matrix(matrix)
 
 
 def create_level(x_size, y_size, key, callback=None):
@@ -112,3 +105,12 @@ def create_level(x_size, y_size, key, callback=None):
     if callback is not None:
         callback()
     return matrix
+
+
+if __name__ == '__main__':
+    x_size = int(input('Задайте ширину лабиринта: '))
+    y_size = int(input('Задайте длину лабиринта: '))
+    matrix_labirinth = [[1 for i in range(x_size)] for _ in range(y_size)]
+    matrix = generate(matrix_labirinth, int(input()))
+    matrix = restruct(matrix)
+    show_matrix(matrix)
