@@ -20,28 +20,57 @@ JUMP_POWER = 10
 GRAVITY = 0.35
 
 # Animation constants
-ANIMATION_DELAY = 1
+ANIMATION_DELAY = 50
 '''
 TMP = pygame.transform.scale(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), [48, 48])
 char = TMP.subsurface(0, 0, 48, 48)
 char = pygame.transform.scale(char, (32, 32))
 '''
-AN_R =
-ANIMATION_RIGHT = [(get_data_path('r1.png', 'img')),
-                   (get_data_path('r2.png', 'img')),
-                   (get_data_path('r3.png', 'img')),
-                   (get_data_path('r4.png', 'img')),
-                   (get_data_path('r5.png', 'img'))]
 
-ANIMATION_LEFT = [(get_data_path('l1.png', 'img')),
-                  (get_data_path('l2.png', 'img')),
-                  (get_data_path('l3.png', 'img')),
-                  (get_data_path('l4.png', 'img')),
-                  (get_data_path('l5.png', 'img'))]
+ANIMATION_RIGHT = [(get_data_path('walk-1.png', 'character')),
+                   (get_data_path('walk-2.png', 'character')),
+                   (get_data_path('walk-3.png', 'character')),
+                   (get_data_path('walk-4.png', 'character')),
+                   (get_data_path('walk-5.png', 'character')),
+                   (get_data_path('walk-6.png', 'character'))]
 
-ANIMATION_JUMP_LEFT = [(get_data_path('jl.png', 'img'), 1)]
-ANIMATION_JUMP_RIGHT = [(get_data_path('jr.png', 'img'), 1)]
-ANIMATION_JUMP = [(get_data_path('j.png', 'img'), 1)]
+ANIMATION_DEATH = [(get_data_path('death1.png', 'character')),
+                   (get_data_path('death2.png', 'character')),
+                   (get_data_path('death3.png', 'character')),
+                   (get_data_path('death2.png', 'character')),
+                   (get_data_path('death3.png', 'character')),
+                   (get_data_path('death2.png', 'character')),
+                   (get_data_path('death3.png', 'character')),
+                   (get_data_path('death2.png', 'character'))]
+
+ANIMATION_LEFT = [(get_data_path('walk-l1.png', 'character')),
+                  (get_data_path('walk-l2.png', 'character')),
+                  (get_data_path('walk-l3.png', 'character')),
+                  (get_data_path('walk-l4.png', 'character')),
+                  (get_data_path('walk-l5.png', 'character')),
+                  (get_data_path('walk-l6.png', 'character'))]
+
+ANIMATION_JUMP = [(get_data_path('up1.png', 'character')),
+                  (get_data_path('up2.png', 'character')),
+                  (get_data_path('up3.png', 'character')),
+                  (get_data_path('up4.png', 'character')),
+                  (get_data_path('up5.png', 'character')),
+                  (get_data_path('up6.png', 'character'))]
+
+ANIMATION_JUMP_LEFT = [(get_data_path('up1.png', 'character')),
+                       (get_data_path('up2.png', 'character')),
+                       (get_data_path('up3.png', 'character')),
+                       (get_data_path('up4.png', 'character')),
+                       (get_data_path('up5.png', 'character')),
+                       (get_data_path('up6.png', 'character'))]
+
+ANIMATION_JUMP_RIGHT = [(get_data_path('up1.png', 'character')),
+                        (get_data_path('up2.png', 'character')),
+                        (get_data_path('up3.png', 'character')),
+                        (get_data_path('up4.png', 'character')),
+                        (get_data_path('up5.png', 'character')),
+                        (get_data_path('up6.png', 'character'))]
+
 ANIMATION_STAY = [(pygame.image.load(get_data_path('Woodcutter1.png', 'character')), 1)]
 
 
@@ -93,18 +122,42 @@ class Player(sprite.Sprite):
         self.boltAnimLeftSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
         self.boltAnimLeftSuperSpeed.play()
 
+        boltAnim = []
+        for anim in ANIMATION_DEATH:
+            boltAnim.append((anim, ANIMATION_DELAY))
+        self.boltAnimDeath = pyganim.PygAnimation(boltAnim)
+        self.boltAnimDeath.play()
+
         self.boltAnimStay = pyganim.PygAnimation(ANIMATION_STAY)
         self.boltAnimStay.play()
         self.boltAnimStay.blit(self.image, (0, 0))  # По-умолчанию, стоим
 
-        self.boltAnimJumpLeft = pyganim.PygAnimation(ANIMATION_JUMP_LEFT)
+        boltAnim = []
+        boltAnimSuperSpeed = []
+        for anim in ANIMATION_LEFT:
+            boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
+        self.boltAnimJumpLeft = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpLeft.play()
+        self.boltAnimJumpLeftSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimJumpLeftSuperSpeed.play()
 
-        self.boltAnimJumpRight = pyganim.PygAnimation(ANIMATION_JUMP_RIGHT)
+        boltAnim = []
+        boltAnimSuperSpeed = []
+        for anim in ANIMATION_RIGHT:
+            boltAnim.append((anim, ANIMATION_DELAY))
+            boltAnimSuperSpeed.append((anim, ANIMATION_SUPER_SPEED_DELAY))
+        self.boltAnimJumpRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpRight.play()
+        self.boltAnimJumpRightSuperSpeed = pyganim.PygAnimation(boltAnimSuperSpeed)
+        self.boltAnimJumpRightSuperSpeed.play()
 
-        self.boltAnimJump = pyganim.PygAnimation(ANIMATION_JUMP)
+        boltAnim = []
+        for anim in ANIMATION_JUMP:
+            boltAnim.append((anim, ANIMATION_DELAY))
+        self.boltAnimJump = pyganim.PygAnimation(boltAnim)
         self.boltAnimJump.play()
+
         for anim in ANIMATION_LEFT:
             boltAnim.append((anim, ANIMATION_DELAY))
 
@@ -118,6 +171,9 @@ class Player(sprite.Sprite):
 
         Also, separated animations for each directions of the player.
         '''
+        if not self.life:
+            self.image.fill(Color(PLAYER_COLOR))
+            self.boltAnimDeath.blit(self.image, (0, 0))
 
         if left:
             self.xvel = -MOVE_SPEED  # Лево = x- n
@@ -217,7 +273,8 @@ class Player(sprite.Sprite):
                     self.die()  # умираем
 
     def die(self):
-        time.wait(500)
+        self.image.fill(Color(PLAYER_COLOR))
+        self.boltAnimDeath.blit(self.image, (0, 0))
         self.life = False
 
     def win(self):
