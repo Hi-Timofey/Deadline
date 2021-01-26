@@ -27,7 +27,7 @@ background_image = pygame_menu.baseimage.BaseImage(
     image_path=get_data_path('background.png', 'img'))
 
 pygame.mixer.init()
-pygame.mixer.set_num_channels(2)
+pygame.mixer.set_num_channels(4)
 
 
 def draw_background():
@@ -40,7 +40,7 @@ def start_the_game_from_menu():
     game = True
 
     # TODO Music
-    pygame.mixer.music.stop()
+    pygame.mixer.Channel(3).pause()
     surface.fill((0, 0, 0))
     LEVEL = 1
     gravity = False
@@ -80,11 +80,14 @@ def start_the_game_from_menu():
             game = True
         elif result == 2:
             game = False
+    if not game:
+        pygame.mixer.Channel(3).unpause()
 
 
 def main():
-    pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
-    pygame.mixer.music.play(-1)
+    pygame.mixer.Channel(3).set_volume(0.75)
+    pygame.mixer.Channel(3).play(pygame.mixer.Sound(get_data_path('menu_theme.wav','music')), loops=-1)
+    # pygame.mixer.music.load(get_data_path('menu_theme.wav', 'music'))
 
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=pygame_menu.themes.THEME_BLUE)

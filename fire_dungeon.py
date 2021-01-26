@@ -155,6 +155,7 @@ class FireDungeon():
             self.game_over_func()
 
         # 2 - died ; 3 - finished
+        pygame.mixer.Channel(0).stop()
         return exit_code
 
     def _fire_cycle(self):
