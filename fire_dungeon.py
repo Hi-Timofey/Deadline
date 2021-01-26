@@ -1,5 +1,6 @@
 import pygame
 from pygame import *
+import pygame_menu
 from utils import *
 from camera import Camera
 from blocks import Platform, BlockDie, Door, ClosedDoor
@@ -46,6 +47,13 @@ class FireDungeon():
             self.total_level_width,
             self.total_level_height)
 
+        # Pause menu for level
+        self.PAUSE_MENU = pygame_menu.Menu(
+                        self.WIN_WIDTH//3, self.WIN_HEIGHT//3, 'Paused',
+                        theme=pygame_menu.themes.THEME_BLUE)
+        self.PAUSE_MENU.add_button('Continue', action=None)
+        self.PAUSE_MENU.add_button('Scores', action=None)
+
     def run_game(self, gravity):
         '''
             Main cycle of the game.
@@ -91,7 +99,12 @@ class FireDungeon():
         self.fire_list_coords = [FIRE_START]
 
         pygame.mixer.Channel(0).set_volume(0.85)
-        pygame.mixer.Channel(0).play(pygame.mixer.Sound(get_data_path('fb_medium.ogg','music')), loops=-1)
+        pygame.mixer.Channel(0).play(
+            pygame.mixer.Sound(
+                get_data_path(
+                    'fb_medium.ogg',
+                    'music')),
+            loops=-1)
         exit_code = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
@@ -136,13 +149,15 @@ class FireDungeon():
                     running = True
                 if e.type == KEYUP and e.key == K_LSHIFT:
                     running = False
+                if self.paused:
+                    self.PAUSE_MENU.update(pygame.event.get())
 
             # First - backgorund drawing
             self.screen.blit(bg, (0, 0))
 
             # Next - drawing objects
-            animatedEntities.update()
             if not self.paused:
+                animatedEntities.update()
                 self.entities.update(
                     left, right, up, down, self.platforms, running)
 
@@ -158,6 +173,8 @@ class FireDungeon():
             for e in self.entities:
                 self.screen.blit(e.image, self.camera.apply(e))
 
+            if self.paused:
+                self.PAUSE_MENU.draw(self.screen)
             pygame.display.update()
         if self.game_over_func is not None:
             self.game_over_func()
@@ -174,7 +191,8 @@ class FireDungeon():
         if self.fire_counter == self.fire_speed:
             # pygame.mixer.Channel(2).set_volume(0.5)
             # pygame.mixer.Channel(2).play(
-            #     pygame.mixer.Sound( get_data_path('fb_fast_start.ogg', 'music')),loops=2)
+            # pygame.mixer.Sound( get_data_path('fb_fast_start.ogg',
+            # 'music')),loops=2)
             for y_new, x_new in self.fire_list_coords:
                 f = Fire(x_new, y_new)
                 f.update(self.level, self.fire_list_coords)
