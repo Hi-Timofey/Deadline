@@ -30,6 +30,11 @@ WALL_TEXTURES = [
                     40, 90, 10, 10), walls_source.subsurface(
                         30, 90, 10, 10)]
 
+SPACE_TEXTURES = [
+    walls_source.subsurface(70, 210, 10, 10),
+    walls_source.subsurface(70, 230, 10, 10),
+    walls_source.subsurface(90, 210, 10, 10)]
+
 
 class Platform(sprite.Sprite):
     def __init__(self, x, y):
@@ -59,6 +64,13 @@ class Door(Platform):
         door = walls_source.subsurface(70, 10, 10, 10)
         self.image = pygame.transform.scale(door, (32, 32))
 
+class Space(sprite.Sprite):
+    def __init__(self, x, y):
+        sprite.Sprite.__init__(self)
+        self.image = Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
+        self.image = pygame.transform.scale(
+            SPACE_TEXTURES[randint(0, 2)], (32, 32))
+        self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 
 class ClosedDoor(Platform):
     # TODO DOCS !
@@ -67,6 +79,9 @@ class ClosedDoor(Platform):
         Platform.__init__(self, x, y)
         door = walls_source.subsurface(10, 10, 10, 10)
         self.image = pygame.transform.scale(door, (32, 32))
+
+
+
 
 
 class BlockTeleport(Platform):

@@ -7,7 +7,7 @@ from utils import *
 
 # нужен на один пиксель меньше чем размер блока, иначе взаимодействие багует
 PLAYER_WIDTH = 31
-PLAYER_HEIGHT = 32
+PLAYER_HEIGHT = 31
 PLAYER_COLOR = "#888888"
 
 JUMP_EXTRA_POWER = 1  # дополнительная сила прыжка
@@ -16,7 +16,6 @@ ANIMATION_SUPER_SPEED_DELAY = 45  # скорость смены кадров п�
 # Gravity constants
 JUMP_POWER = 10
 GRAVITY = 0.35
-
 
 FOOT_STEP = [get_data_path('footstep00.ogg', 'music'),
              get_data_path('footstep01.ogg', 'music'),
@@ -29,7 +28,6 @@ RUN_STEP = [get_data_path('footstep06.ogg', 'music'),
             get_data_path('footstep08.ogg', 'music'),
             get_data_path('footstep09.ogg', 'music')
             ]
-
 
 # Animation constants
 
@@ -117,7 +115,7 @@ class Player(sprite.Sprite):
         self.image = Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
         self.image.fill(Color(PLAYER_COLOR))
         self.image.set_colorkey(Color(PLAYER_COLOR))
-        self.rect = Rect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
+        self.rect = Rect(self.start_x, self.start_y, PLAYER_WIDTH, PLAYER_HEIGHT)
         self.image.set_colorkey(Color(PLAYER_COLOR))
 
         #        Анимация движения вправо
@@ -159,7 +157,7 @@ class Player(sprite.Sprite):
         self.boltAnimJumpLeft = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpLeft.play()
         self.boltAnimJumpLeftSuperSpeed = pyganim.PygAnimation(
-                                                               boltAnimSuperSpeed)
+            boltAnimSuperSpeed)
         self.boltAnimJumpLeftSuperSpeed.play()
 
         boltAnim = []
@@ -170,7 +168,7 @@ class Player(sprite.Sprite):
         self.boltAnimJumpRight = pyganim.PygAnimation(boltAnim)
         self.boltAnimJumpRight.play()
         self.boltAnimJumpRightSuperSpeed = pyganim.PygAnimation(
-                                                                boltAnimSuperSpeed)
+            boltAnimSuperSpeed)
         self.boltAnimJumpRightSuperSpeed.play()
 
         boltAnim = []
@@ -315,7 +313,6 @@ class Player(sprite.Sprite):
         self.boltAnimDeath.blit(self.image, (0, 0))
         self.life = False
         pygame.mixer.music.unload()
-        time.wait(500)
 
     def win(self):
         ''' End value true means that level is finished'''

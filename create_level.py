@@ -93,7 +93,10 @@ def restruct(matrix):
         matrix[_].append(char_border)
     matrix.append([char_border for i in range(width + 2)])
     matrix[1][0] = "C"
-    matrix[len(matrix)-2][len(matrix[0])-1] = "E"
+    matrix[len(matrix) - 2][len(matrix[0]) - 1] = "E"
+    matrix[1][2], matrix[1][3], matrix[1][4] = 0, 0, 0
+    matrix[2][1], matrix[2][2], matrix[2][3],  matrix[1][4] = 0, 0, 0, 0
+    print(matrix)
     return matrix
 
 
