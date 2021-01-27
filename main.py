@@ -57,8 +57,8 @@ def start_the_game_from_menu():
 
     while game:
         player = Player(
-            68,
-            68,
+            32,
+            96,
             move_speed=player_mv,
             mv_extra_multi=player_mv_extra,
             gravity=gravity)

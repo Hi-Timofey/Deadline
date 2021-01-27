@@ -3,17 +3,17 @@ from pygame import *
 import pygame_menu
 from utils import *
 from camera import Camera
-from blocks import Platform, BlockDie, Door, ClosedDoor
+from blocks import Platform, BlockDie, Door, ClosedDoor, Space
 from player import Player
 from create_level import create_level
 from fire import Fire, show_matrix
-
 
 BACKGROUND_COLOR = "#000000"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-FIRE_START = [2, 1]
+FIRE_START = [1, 1]
+PLAYER_START = [1, 3]
 
 
 class FireDungeon():
@@ -49,8 +49,8 @@ class FireDungeon():
 
         # Pause menu for level
         self.PAUSE_MENU = pygame_menu.Menu(
-                        self.WIN_WIDTH//3, self.WIN_HEIGHT//3, 'Paused',
-                        theme=pygame_menu.themes.THEME_BLUE)
+            self.WIN_WIDTH // 3, self.WIN_HEIGHT // 3, 'Paused',
+            theme=pygame_menu.themes.THEME_BLUE)
         self.PAUSE_MENU.add_button('Continue', action=self._continue_game)
         self.PAUSE_MENU.add_button('Save game', action=self._return_game_val)
         self.PAUSE_MENU.add_button(
@@ -70,7 +70,9 @@ class FireDungeon():
         # Directions of the player
         left = right = False
         up = False
+        flag = True
         down = gravity
+        self.start = False
         self.level[FIRE_START[0]][FIRE_START[1]] = "!"
         # Image for platforms
         # все анимированные объекты, за исключением героя
@@ -94,10 +96,17 @@ class FireDungeon():
                     pf = Door(self.x, self.y)
                     self.entities.add(pf)
                     self.platforms.append(pf)
+                if col == 0:
+                    '''if flag and (self.x >= FIRE_START[1] + (2*32) and self.y >= FIRE_START[0]):
+                        flag = False
+                        self.player.start_x = self.x
+                        self.player.start_y = self.y
+                        print(self.y, self.x)'''
+                    pf = Space(self.x, self.y)
+                    self.entities.add(pf)
                 self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
             self.y += PLATFORM_HEIGHT  # то же самое и с высотой
             self.x = 0  # на каждой новой строчке начинаем с нуля
-
         running = False
         self.fire_list_coords = [FIRE_START]
 
@@ -112,7 +121,8 @@ class FireDungeon():
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
             if not self.paused:
-                self._fire_cycle()
+                if self.start:
+                    self._fire_cycle()
 
             events = pygame.event.get()
             for e in events:  # Обрабатываем события
@@ -133,29 +143,44 @@ class FireDungeon():
                     self.paused = not self.paused
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True
+                    self.start = True
 
                 if e.type == KEYDOWN and e.key == K_RIGHT:
                     right = True
+                    self.start = True
                 if e.type == KEYDOWN and e.key == K_UP:
                     up = True
+                    self.start = True
                 if e.type == KEYDOWN and e.key == K_DOWN:
                     down = True
+                    self.start = True
                 if e.type == KEYUP and e.key == K_UP:
                     up = False
+                    self.start = True
                 if e.type == KEYUP and e.key == K_RIGHT:
                     right = False
+                    self.start = True
                 if e.type == KEYUP and e.key == K_LEFT:
                     left = False
+                    self.start = True
                 if e.type == KEYUP and e.key == K_DOWN:
                     down = False
+                    self.start = True
 
                 if e.type == KEYDOWN and e.key == K_LSHIFT:
                     running = True
+                    self.start = True
                 if e.type == KEYUP and e.key == K_LSHIFT:
                     running = False
+                    self.start = True
                 if self.paused:
                     self.PAUSE_MENU.update(events)
-
+            if not self.paused:
+                self.player.update(
+                    left, right, up, down, self.platforms, running)
+            else:
+                self.player.update(
+                    False, False, False, False, self.platforms, False)
             # First - backgorund drawing
             self.screen.blit(bg, (0, 0))
 
@@ -164,13 +189,6 @@ class FireDungeon():
                 animatedEntities.update()
                 self.entities.update(
                     left, right, up, down, self.platforms, running)
-
-            if not self.paused:
-                self.player.update(
-                    left, right, up, down, self.platforms, running)
-            else:
-                self.player.update(
-                    False, False, False, False, self.platforms, False)
 
             # Centralize camera on player
             self.camera.update(self.player)
@@ -264,8 +282,7 @@ if __name__ == "__main__":
     mv_extra = 2
 
     player = Player(
-        64,
-        64,
+        200, 200,
         move_speed=mv,
         mv_extra_multi=mv_extra,
         gravity=gravity)
