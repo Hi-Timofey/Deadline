@@ -1,13 +1,13 @@
-# Fire-dungeon
+# [Fire-dungeon](https://github.com/hi-timofey/fire-dungeon)
 ---
-*screens*  of a game
 
 ---
 
 ## What is it
 ***Fire Dungeon*** is a Python3 game in which you have to *escape* from the *infinity* dungeon with fire by your character. Game is written by [Yandex Lyceum](https://lyceum.yandex.ru/) students Timofey Katkov ANDaniel Nesterenko. Game works on Pygame lib which provides lots of tools to work hard. For animation used lib Pyganimation, for menu of the game - Pygame-menu.
+
 ## How to play
-In **Fire dungeon** you are the player who spawned in a maze. You see that the flame is coming for you and you starting to run the maze.
+In **Fire dungeon** you are the player who spawned in a maze. You see that the flame is coming for you and you starting to run the maze. you need to get out of the maze while the fire follows on your heels. With each level, the speed of events increases - the labyrinth becomes larger, the fire and the player are faster. The goal of the game is to score points. The more mazes you can go through, the cooler you are Indiano Jones.
 
 ## Requirements
 Game work on any computer and OS which can install needed software.
