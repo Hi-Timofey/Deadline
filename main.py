@@ -50,7 +50,7 @@ def start_the_game_from_menu():
     level_width = 15
     level_height = 15
     # FIRE SPEED
-    fire_speed = 90
+    fire_speed = 80
     # PLAYER MOVEMENT
     player_mv = 1
     player_mv_extra = 2
@@ -74,11 +74,14 @@ def start_the_game_from_menu():
             game = False
         elif result == 3:
             LEVEL += 1
-            fire_speed -= 5
-            level_width += 4
-            level_height += 4
-            player_mv += 0.12
-            player_mv_extra -= 0.1
+            if fire_speed != 30:
+                fire_speed -= 5
+            level_width += 3
+            level_height += 3
+            if player_mv < 3:
+                player_mv += 0.11
+            if player_mv_extra == 1:
+                player_mv_extra -= 0.05
             game = True
         elif result == 2:
             game = False
