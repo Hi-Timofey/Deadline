@@ -97,11 +97,6 @@ class FireDungeon():
                     self.entities.add(pf)
                     self.platforms.append(pf)
                 if col == 0:
-                    '''if flag and (self.x >= FIRE_START[1] + (2*32) and self.y >= FIRE_START[0]):
-                        flag = False
-                        self.player.start_x = self.x
-                        self.player.start_y = self.y
-                        print(self.y, self.x)'''
                     pf = Space(self.x, self.y)
                     self.entities.add(pf)
                 self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
@@ -139,7 +134,6 @@ class FireDungeon():
                     self.exit_code = 3
 
                 if e.type == KEYDOWN and e.key == K_ESCAPE:
-                    print('escape')
                     self.paused = not self.paused
                 if e.type == KEYDOWN and e.key == K_LEFT:
                     left = True

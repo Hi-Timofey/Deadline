@@ -96,7 +96,7 @@ def restruct(matrix):
     matrix[len(matrix) - 2][len(matrix[0]) - 1] = "E"
     matrix[1][2], matrix[1][3], matrix[1][4] = 0, 0, 0
     matrix[2][1], matrix[2][2], matrix[2][3],  matrix[1][4] = 0, 0, 0, 0
-    print(matrix)
+    # print(matrix)
     return matrix
 
 
