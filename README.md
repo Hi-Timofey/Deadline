@@ -1,6 +1,6 @@
-# [Fire-dungeon](https://github.com/hi-timofey/fire-dungeon)
+# [Fire-Dungeon](https://github.com/hi-timofey/fire-dungeon)
 ---
-
+![Fire-Dungeon gameplay screen](https://github.com/Hi-Timofey/Fire-Dungeon/blob/master/data/img/background.png?raw=true)
 ---
 
 ## What is it
