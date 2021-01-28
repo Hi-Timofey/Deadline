@@ -2,6 +2,7 @@ import os
 import sqlite3 as sql
 import pygame
 import pygame_menu
+import datetime
 
 
 class FireDB():
@@ -31,11 +32,11 @@ class FireDB():
         self._start()
         query_table = '''
         CREATE TABLE "scores" (
-	"id"	INTEGER NOT NULL UNIQUE,
+	"id"	INTEGER,
 	"score"	INTEGER NOT NULL DEFAULT 0,
-	"data"	TEXT NOT NULL DEFAULT '01.01.2021 13:00',
-	PRIMARY KEY("score")
-                );
+	"date"	TEXT NOT NULL DEFAULT '01.01.2021 13:00',
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
         '''
         # query_table += '''
         # CREATE TABLE "scores" (
@@ -73,22 +74,44 @@ class Scores(FireDB):
 
     def create_menu(self):
         data = self.get_all_data(ordered=True)
-        self.menu = pygame_menu.Menu(
-            self.height,
-            self.width,
-            'Dungeon Scores ',
-            theme=pygame_menu.themes.THEME_BLUE,
-            columns=2,
-            onclose=pygame_menu.events.EXIT,
-            rows=1 + len(data))
+        data_length = len(data)
+        if data_length > 0:
+            self.menu = pygame_menu.Menu(
+                self.height,
+                self.width,
+                'Dungeon Scores ',
+                theme=pygame_menu.themes.THEME_BLUE,
+                columns=2,
+                onclose=pygame_menu.events.EXIT,
+                rows=2 + data_length)
 
-        self.menu.add_label('Score', max_char=-1, font_size=28)
-        for d in data:
-            self.menu.add_label(d[0], max_char=-1, font_size=16)
+            scores_lbl = []
+            self.menu.add_label('Score', max_char=-1, font_size=22)
+            for d in data:
+                scores_lbl.append(self.menu.add_label(d[0], max_char=-1, font_size=30))
 
-        self.menu.add_label('Data', max_char=-1, font_size=28)
-        for d in data:
-            self.menu.add_label(d[1], max_char=-1, font_size=16)
+            self.menu.add_button('Quit', pygame_menu.events.RESET)
+
+            self.menu.add_label('Data', max_char=-1, font_size=22)
+            for d in data:
+                scores_lbl.append(self.menu.add_label(d[1], max_char=-1, font_size=30))
+
+            self.clear_btn = self.menu.add_button('Clear', self.delete_all_scores)
+            self.scores_lbl = scores_lbl
+
+        else:
+            self.menu = pygame_menu.Menu(
+                self.height,
+                self.width,
+                'Dungeon Scores ',
+                theme=pygame_menu.themes.THEME_BLUE,
+                columns=2,
+                onclose=pygame_menu.events.EXIT,
+                rows=2)
+            self.menu.add_label('Score', max_char=-1, font_size=28)
+            self.menu.add_label('No', max_char=-1, font_size=26)
+            self.menu.add_label('Records', max_char=-1, font_size=28)
+            self.menu.add_label('Date', max_char=-1, font_size=26)
 
     def menu_off(self):
         self.menu.disable()
@@ -110,18 +133,21 @@ class Scores(FireDB):
 
         if ordered:
             response = self.cur.execute(
-                '''select distinct score, data from scores
-                                    order by score asc''').fetchall()
+                '''select distinct score, date from scores
+                                    order by score DESC''').fetchall()
         else:
             response = self.cur.execute(
-                'select distinct score, data from scores').fetchall()
+                'select distinct score, date from scores').fetchall()
 
         self._stop()
         return response
 
-    def add_score(self, score, date):
+    def add_score(self, score):
         self._start()
-        self.cur.execute(f"insert into scores values({int(score)}, '{date}')")
+        date = datetime.date.today()
+        time = datetime.datetime.now().time()
+        query = f"insert into scores(id, score, date) values(null, {int(score)}, '{date} {str(time)[:8]}')"
+        self.cur.execute(query)
         self.db_connect.commit()
         self._stop()
 
@@ -133,6 +159,13 @@ class Scores(FireDB):
 
         self.db_connect.commit()
         self._stop()
+        self.create_menu()
+        self.menu.full_reset()
+        # Just hides the lbl from player view
+        for score in self.scores_lbl:
+            score.hide()
+
+
 
 
 class Saves(FireDB):

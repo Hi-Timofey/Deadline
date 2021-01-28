@@ -201,6 +201,9 @@ class FireDungeon():
         pygame.mixer.Channel(2).stop()
         return self.exit_code
 
+    def get_endgame_score(self):
+        pass
+
     def _return_game_val(self):
         '''
         Function for saving the game status
