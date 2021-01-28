@@ -19,7 +19,7 @@ PLAYER_START = [1, 3]
 class FireDungeon():
 
     def __init__(self, level, player, game_width, game_height, fire_speed,
-                 game_over_func=None, gravity=False):
+                 game_over_func=None, gravity=False, theme=pygame_menu.themes.THEME_BLUE):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
@@ -50,7 +50,7 @@ class FireDungeon():
         # Pause menu for level
         self.PAUSE_MENU = pygame_menu.Menu(
             self.WIN_WIDTH // 3, self.WIN_HEIGHT // 3, 'Paused',
-            theme=pygame_menu.themes.THEME_BLUE)
+            theme=theme)
         self.PAUSE_MENU.add_button('Continue', action=self._continue_game)
         self.PAUSE_MENU.add_button('Save game', action=self._return_game_val)
         self.PAUSE_MENU.add_button(

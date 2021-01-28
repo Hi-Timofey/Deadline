@@ -29,6 +29,20 @@ background_image = pygame_menu.baseimage.BaseImage(
 pygame.mixer.init()
 pygame.mixer.set_num_channels(5)
 
+fd_theme = pygame_menu.themes.THEME_BLUE.copy()
+fd_theme.title_shadow=True
+fd_theme.background_color = (237,92,41, 80)
+fd_theme.title_font_color = (255,255,255)
+fd_theme.selection_color = (255,255,255)
+fd_theme.widget_font_color = (255,255,255)
+fd_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_ADAPTIVE
+fd_theme.title_background_color = (252,108,24)
+fd_theme.cursor_color = (244, 164, 96)
+fd_theme.menubar_close_button = True
+fd_theme.title_font = get_font_path('Sigma Five.otf')
+fd_theme.widget_font = get_font_path('Sigma Five.otf')
+fd_theme.validate()
+
 
 def draw_background():
     background_image.draw(surface)
@@ -73,7 +87,7 @@ def start_the_game_from_menu():
         level = create_level(level_width, level_height, LEVEL)
         fire_dungeon_lvl = fire_dungeon.FireDungeon(
             level,
-            player, g_width, g_height, fire_speed)
+            player, g_width, g_height, fire_speed, theme=fd_theme)
         result = fire_dungeon_lvl.run_game(False)
         print(result)
         del fire_dungeon_lvl
@@ -146,13 +160,6 @@ def create_main_menu():
     # if scores_menu is not None:
     #     scores_menu.menu.full_reset()
 
-    fd_theme = pygame_menu.themes.THEME_BLUE.copy()
-    fd_theme.title_shadow=True
-    fd_theme.cursor_color = (244, 164, 96)
-    fd_theme.menubar_close_button = True
-    fd_theme.title_font = get_font_path('Sigma Five.otf')
-    fd_theme.widget_font = get_font_path('Sigma Five.otf')
-    fd_theme.validate()
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=fd_theme)
     scores_menu = Scores(int(window_width/1.3), int(window_height/1.3), fd_theme)
