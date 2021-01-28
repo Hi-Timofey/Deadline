@@ -231,10 +231,6 @@ class FireDungeon():
         self.fire_counter += 1
         self.y = 0
         if self.fire_counter == self.fire_speed:
-            # pygame.mixer.Channel(2).set_volume(0.5)
-            # pygame.mixer.Channel(2).play(
-            # pygame.mixer.Sound( get_data_path('fb_fast_start.ogg',
-            # 'music')),loops=2)
             for y_new, x_new in self.fire_list_coords:
                 f = Fire(x_new, y_new)
                 f.update(self.level, self.fire_list_coords)

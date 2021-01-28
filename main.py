@@ -27,7 +27,7 @@ background_image = pygame_menu.baseimage.BaseImage(
     image_path=get_data_path('background.png', 'img'))
 
 pygame.mixer.init()
-pygame.mixer.set_num_channels(4)
+pygame.mixer.set_num_channels(5)
 
 
 def draw_background():
@@ -38,6 +38,13 @@ def start_the_game_from_menu():
 
     global game, main_menu
     game = True
+    pygame.mixer.Channel(4).set_volume(0.75)
+    pygame.mixer.Channel(4).play(
+        pygame.mixer.Sound(
+            get_data_path(
+                'game_sound.ogg',
+                'music')),
+        loops=-1)
 
     # TODO Music
     pygame.mixer.Channel(3).pause()
@@ -73,6 +80,8 @@ def start_the_game_from_menu():
         del player
         if result == 1:
             game = False
+            # Stop soundtrack
+            pygame.mixer.Channel(4).stop()
         elif result == 3:
             LEVEL += 1
             if fire_speed != 30:
@@ -87,6 +96,10 @@ def start_the_game_from_menu():
         elif result == 2:
             game = False
             scores_menu.add_score(LEVEL * 100)
+
+            # Stop soundtrack
+            pygame.mixer.Channel(4).stop()
+
         scores_menu.menu.full_reset()
         main_menu.full_reset()
         create_main_menu()
