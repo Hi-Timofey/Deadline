@@ -140,13 +140,24 @@ def create_main_menu():
     main_menu.add_button('Play', start_the_game_from_menu)
     main_menu.add_button('Scores', scores_menu.menu)
     credit_list = [
-        "CREDITS - The Departed",
+        "Fire Dungeon - Fire Maze",
         " ",
-        "Leonardo DiCaprio - Billy",
-        "Matt Damon - Colin Sullivan",
-        "Jack Nicholson - Frank Costello",
-        "Mark Wahlberg - Dignam",
-        "Martin Sheen - Queenan"]
+        " Menues",
+        "Timofey Katkov",
+        " ",
+        "Game play",
+        "Daniil Nesterenko",
+        "Timofey Katkov",
+        " ",
+        "Maze",
+        "Daniil Nesterenko"
+        " ",
+        " ",
+        "Music",
+        "Timofey Katkov, EROZZION Music",
+        " ",
+        "Thanks for playing"
+    ]
     c = Credits(credit_list, surface, 'Sigma Five.otf')
     main_menu.add_button('About', c.main)
     main_menu.add_button('Quit', pygame_menu.events.EXIT)
