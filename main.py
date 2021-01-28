@@ -155,7 +155,7 @@ def create_main_menu():
     fd_theme.validate()
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=fd_theme)
-    scores_menu = Scores(int(window_width/1.3), int(window_height/1.3))
+    scores_menu = Scores(int(window_width/1.3), int(window_height/1.3), fd_theme)
     scores_menu.menu.set_onclose(create_main_menu)
     main_menu.add_button('Play', start_the_game_from_menu)
     main_menu.add_button('Scores', scores_menu.menu)

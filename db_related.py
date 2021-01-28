@@ -7,9 +7,10 @@ import datetime
 
 class FireDB():
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, theme=None):
         self.width = width
         self.height = height
+        self.theme = theme
         self.path = os.path.join('data', 'db.db')
         self.cur = None
         self.db_connect = None
@@ -75,12 +76,14 @@ class Scores(FireDB):
     def create_menu(self):
         data = self.get_all_data(ordered=True)
         data_length = len(data)
+        if self.theme is None:
+            self.theme = pygame_menu.themes.THEME_BLUE
         if data_length > 0:
             self.menu = pygame_menu.Menu(
                 self.height,
                 self.width,
                 'Dungeon Scores ',
-                theme=pygame_menu.themes.THEME_BLUE,
+                theme=self.theme,
                 columns=2,
                 onclose=pygame_menu.events.EXIT,
                 rows=2 + data_length)
@@ -104,7 +107,7 @@ class Scores(FireDB):
                 self.height,
                 self.width,
                 'Dungeon Scores ',
-                theme=pygame_menu.themes.THEME_BLUE,
+                theme=self.theme,
                 columns=2,
                 onclose=pygame_menu.events.EXIT,
                 rows=2)
