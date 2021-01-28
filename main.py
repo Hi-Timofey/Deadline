@@ -72,6 +72,7 @@ def start_the_game_from_menu():
         print(result)
         del fire_dungeon_lvl
         del player
+        main_menu.clear()
         create_main_menu()
         if result == 1:
             game = False
@@ -124,6 +125,7 @@ def main():
 
 
 def create_main_menu():
+
 
     global main_menu, scores_menu
     scores_menu = Scores(int(window_width/1.3), int(window_height/1.3))
