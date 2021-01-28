@@ -7,10 +7,9 @@ import datetime
 
 class FireDB():
 
-    def __init__(self, width, height, main_menu=None):
+    def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.mm = main_menu
         self.path = os.path.join('data', 'db.db')
         self.cur = None
         self.db_connect = None
@@ -86,17 +85,19 @@ class Scores(FireDB):
                 onclose=pygame_menu.events.EXIT,
                 rows=2 + data_length)
 
+            scores_lbl = []
             self.menu.add_label('Score', max_char=-1, font_size=22)
             for d in data:
-                self.menu.add_label(d[0], max_char=-1, font_size=30)
+                scores_lbl.append(self.menu.add_label(d[0], max_char=-1, font_size=30))
 
             self.menu.add_button('Quit', pygame_menu.events.RESET)
 
             self.menu.add_label('Data', max_char=-1, font_size=22)
             for d in data:
-                self.menu.add_label(d[1], max_char=-1, font_size=30)
+                scores_lbl.append(self.menu.add_label(d[1], max_char=-1, font_size=30))
 
-            self.menu.add_button('Clear', self.delete_all_scores)
+            self.clear_btn = self.menu.add_button('Clear', self.delete_all_scores)
+            self.scores_lbl = scores_lbl
 
         else:
             self.menu = pygame_menu.Menu(
@@ -158,9 +159,12 @@ class Scores(FireDB):
 
         self.db_connect.commit()
         self._stop()
-        self.menu.full_reset()
-        self.mm.full_reset()
         self.create_menu()
+        self.menu.full_reset()
+        # Just hides the lbl from player view
+        for score in self.scores_lbl:
+            score.hide()
+
 
 
 
