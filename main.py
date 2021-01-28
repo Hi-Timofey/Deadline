@@ -146,8 +146,15 @@ def create_main_menu():
     # if scores_menu is not None:
     #     scores_menu.menu.full_reset()
 
+    fd_theme = pygame_menu.themes.THEME_BLUE.copy()
+    fd_theme.title_shadow=True
+    fd_theme.cursor_color = (244, 164, 96)
+    fd_theme.menubar_close_button = True
+    fd_theme.title_font = get_font_path('Sigma Five.otf')
+    fd_theme.widget_font = get_font_path('Sigma Five.otf')
+    fd_theme.validate()
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
-                                 theme=pygame_menu.themes.THEME_BLUE)
+                                 theme=fd_theme)
     scores_menu = Scores(int(window_width/1.3), int(window_height/1.3))
     scores_menu.menu.set_onclose(create_main_menu)
     main_menu.add_button('Play', start_the_game_from_menu)
