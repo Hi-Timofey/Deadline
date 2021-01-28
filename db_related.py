@@ -109,9 +109,9 @@ class Scores(FireDB):
                 onclose=pygame_menu.events.EXIT,
                 rows=2)
             self.menu.add_label('Score', max_char=-1, font_size=28)
-            self.menu.add_label('No', max_char=-1, font_size=26)
+            self.menu.add_button('No', pygame_menu.events.RESET)
             self.menu.add_label('Records', max_char=-1, font_size=28)
-            self.menu.add_label('Date', max_char=-1, font_size=26)
+            self.menu.add_button('Data', pygame_menu.events.RESET)
 
     def menu_off(self):
         self.menu.disable()
