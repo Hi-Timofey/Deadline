@@ -7,9 +7,10 @@ import datetime
 
 class FireDB():
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, main_menu=None):
         self.width = width
         self.height = height
+        self.mm = main_menu
         self.path = os.path.join('data', 'db.db')
         self.cur = None
         self.db_connect = None
@@ -157,6 +158,10 @@ class Scores(FireDB):
 
         self.db_connect.commit()
         self._stop()
+        self.menu.full_reset()
+        self.mm.full_reset()
+        self.create_menu()
+
 
 
 class Saves(FireDB):

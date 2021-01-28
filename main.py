@@ -15,13 +15,12 @@ pygame.init()
 FPS = 60
 display_info = pygame.display.Info()
 clock = pygame.time.Clock()
-
 window_size = window_width, window_height = 800, 800
 game_size = g_width, g_height = 800, 800
 
 surface = pygame.display.set_mode(window_size)
 
-main_menu = None
+scores_menu, main_menu = None, None
 credits, game = False, False
 
 background_image = pygame_menu.baseimage.BaseImage(
@@ -72,8 +71,6 @@ def start_the_game_from_menu():
         print(result)
         del fire_dungeon_lvl
         del player
-        main_menu.clear()
-        create_main_menu()
         if result == 1:
             game = False
         elif result == 3:
@@ -90,6 +87,9 @@ def start_the_game_from_menu():
         elif result == 2:
             game = False
             scores_menu.add_score(LEVEL * 100)
+        scores_menu.menu.full_reset()
+        main_menu.full_reset()
+        create_main_menu()
     if not game:
         pygame.mixer.Channel(3).unpause()
 
@@ -125,12 +125,16 @@ def main():
 
 
 def create_main_menu():
-
-
     global main_menu, scores_menu
-    scores_menu = Scores(int(window_width/1.3), int(window_height/1.3))
+
+    # if main_menu is not None:
+    #     main_menu.full_reset()
+    # if scores_menu is not None:
+    #     scores_menu.menu.full_reset()
+
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=pygame_menu.themes.THEME_BLUE)
+    scores_menu = Scores(int(window_width/1.3), int(window_height/1.3), main_menu)
     main_menu.add_button('Play', start_the_game_from_menu)
     main_menu.add_button('Scores', scores_menu.menu)
     credit_list = [
