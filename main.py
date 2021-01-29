@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import fire_dungeon
+import json, datetime
 from credits import Credits
 import pygame
 import pygame_menu
-from db_related import Scores
+from db_related import Scores, Saves
 from utils import *
 from create_level import create_level
 from player import Player
@@ -20,7 +21,7 @@ game_size = g_width, g_height = 800, 800
 
 surface = pygame.display.set_mode(window_size)
 
-scores_menu, main_menu = None, None
+saves_menu, scores_menu, main_menu = None, None, None
 credits, game = False, False
 
 background_image = pygame_menu.baseimage.BaseImage(
@@ -30,13 +31,13 @@ pygame.mixer.init()
 pygame.mixer.set_num_channels(5)
 
 fd_theme = pygame_menu.themes.THEME_BLUE.copy()
-fd_theme.title_shadow=True
-fd_theme.background_color = (237,92,41, 80)
-fd_theme.title_font_color = (255,255,255)
-fd_theme.selection_color = (255,255,255)
-fd_theme.widget_font_color = (255,255,255)
+fd_theme.title_shadow = True
+fd_theme.background_color = (237, 92, 41, 80)
+fd_theme.title_font_color = (255, 255, 255)
+fd_theme.selection_color = (255, 255, 255)
+fd_theme.widget_font_color = (255, 255, 255)
 fd_theme.title_bar_style = pygame_menu.widgets.MENUBAR_STYLE_ADAPTIVE
-fd_theme.title_background_color = (252,108,24)
+fd_theme.title_background_color = (252, 108, 24)
 fd_theme.cursor_color = (244, 164, 96)
 fd_theme.menubar_close_button = True
 fd_theme.title_font = get_font_path('Sigma Five.otf')
@@ -50,7 +51,7 @@ def draw_background():
 
 def start_the_game_from_menu():
 
-    global game, main_menu
+    global game, main_menu, saves_menu
     game = True
     pygame.mixer.Channel(4).set_volume(0.75)
     pygame.mixer.Channel(4).play(
@@ -76,7 +77,9 @@ def start_the_game_from_menu():
     player_mv = 1
     player_mv_extra = 2
 
+    fire_dungeon_lvl = None
     while game:
+
         player = Player(
             32,
             96,
@@ -85,17 +88,15 @@ def start_the_game_from_menu():
             gravity=gravity)
 
         level = create_level(level_width, level_height, LEVEL)
+
         fire_dungeon_lvl = fire_dungeon.FireDungeon(
             level,
             player, g_width, g_height, fire_speed, theme=fd_theme)
+
         result = fire_dungeon_lvl.run_game(False)
-        print(result)
-        del fire_dungeon_lvl
-        del player
+
         if result == 1:
             game = False
-            # Stop soundtrack
-            pygame.mixer.Channel(4).stop()
         elif result == 3:
             LEVEL += 1
             if fire_speed != 30:
@@ -112,12 +113,42 @@ def start_the_game_from_menu():
             scores_menu.add_score(LEVEL * 100)
 
             # Stop soundtrack
-            pygame.mixer.Channel(4).stop()
+        elif result == 7:
+            game = False
+            date = datetime.date.today()
+            time = datetime.datetime.now().time()
+            save = {
+                f'date':f'{date}_{str(time)[:8]}',
+                # Data to create level
+                'level_num': LEVEL,
+                'level_width': level_width, 'level_height': level_height,
+                'fire_coords': fire_dungeon_lvl.fire_list_coords,
+                'seed' : fire_dungeon_lvl.seed,
+
+                # Player information
+                'gravity': gravity,
+                'fire_speed': fire_speed,
+                'player_mv': player_mv,
+                'player_mv_extra': player_mv_extra,
+            }
+
+
+            with open(f'saves/{ save["date"] }.json', 'w') as f:
+                json.dump(save, f, ensure_ascii=False,
+                    indent=2, sort_keys=True)
+
+            print(save)
+
+
+            # saves_menu.add_save_by_dict(result)
 
         scores_menu.menu.full_reset()
         main_menu.full_reset()
         create_main_menu()
+    del fire_dungeon_lvl
+    del player
     if not game:
+        pygame.mixer.Channel(4).stop()
         pygame.mixer.Channel(3).unpause()
 
 
@@ -151,21 +182,26 @@ def main():
         pygame.display.update()
 
 
-
 def create_main_menu():
-    global main_menu, scores_menu
+    global main_menu, scores_menu, saves_menu
 
-    # if main_menu is not None:
-    #     main_menu.full_reset()
-    # if scores_menu is not None:
-    #     scores_menu.menu.full_reset()
-
+    # Main menu
     main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
                                  theme=fd_theme)
-    scores_menu = Scores(int(window_width/1.3), int(window_height/1.3), fd_theme)
+
+    # Table of SCORES
+    scores_menu = Scores(
+        int(window_width / 1.3),
+        int(window_height / 1.3),
+        fd_theme)
     scores_menu.menu.set_onclose(create_main_menu)
+
+    # Table of SAVES
+    saves_menu = Saves(int(window_width/1.3), int(window_height/1.3), fd_theme)
+
     main_menu.add_button('Play', start_the_game_from_menu)
     main_menu.add_button('Scores', scores_menu.menu)
+    main_menu.add_button('Saves', saves_menu.menu)
     credit_list = [
         "Fire Dungeon - Fire Maze",
         " ",

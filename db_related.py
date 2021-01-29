@@ -11,6 +11,7 @@ class FireDB():
         self.width = width
         self.height = height
         self.theme = theme
+        self.menu = None
         self.path = os.path.join('data', 'db.db')
         self.cur = None
         self.db_connect = None
@@ -172,6 +173,51 @@ class Scores(FireDB):
 
 
 class Saves(FireDB):
+
+    def create_menu(self):
+        pass
+        # data = self.get_all_data(ordered=True)
+        # data_length = len(data)
+        # if self.theme is None:
+        #     self.theme = pygame_menu.themes.THEME_BLUE
+        # if data_length > 0:
+        #     self.menu = pygame_menu.Menu(
+        #         self.height,
+        #         self.width,
+        #         'Dungeon Scores ',
+        #         theme=self.theme,
+        #         columns=2,
+        #         onclose=pygame_menu.events.EXIT,
+        #         rows=2 + data_length)
+
+        #     scores_lbl = []
+        #     self.menu.add_label('Score', max_char=-1, font_size=22)
+        #     for d in data:
+        #         scores_lbl.append(self.menu.add_label(d[0], max_char=-1, font_size=30))
+
+        #     self.menu.add_button('Quit', pygame_menu.events.RESET)
+
+        #     self.menu.add_label('Date', max_char=-1, font_size=22)
+        #     for d in data:
+        #         scores_lbl.append(self.menu.add_label(d[1], max_char=-1, font_size=30))
+
+        #     self.clear_btn = self.menu.add_button('Clear', self.delete_all_scores)
+        #     self.scores_lbl = scores_lbl
+
+        # else:
+        #     self.menu = pygame_menu.Menu(
+        #         self.height,
+        #         self.width,
+        #         'Dungeon Scores ',
+        #         theme=self.theme,
+        #         columns=2,
+        #         onclose=pygame_menu.events.EXIT,
+        #         rows=2)
+        #     self.menu.add_label('Score', max_char=-1, font_size=28)
+        #     self.menu.add_button('No', pygame_menu.events.RESET)
+        #     self.menu.add_label('Records', max_char=-1, font_size=28)
+        #     self.menu.add_button('Date', pygame_menu.events.RESET)
+
 
     def get_all_data(self, ordered=True):
         pass
