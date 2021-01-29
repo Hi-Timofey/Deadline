@@ -95,7 +95,7 @@ class Scores(FireDB):
 
             self.menu.add_button('Quit', pygame_menu.events.RESET)
 
-            self.menu.add_label('Data', max_char=-1, font_size=22)
+            self.menu.add_label('Date', max_char=-1, font_size=22)
             for d in data:
                 scores_lbl.append(self.menu.add_label(d[1], max_char=-1, font_size=30))
 
@@ -114,7 +114,7 @@ class Scores(FireDB):
             self.menu.add_label('Score', max_char=-1, font_size=28)
             self.menu.add_button('No', pygame_menu.events.RESET)
             self.menu.add_label('Records', max_char=-1, font_size=28)
-            self.menu.add_button('Data', pygame_menu.events.RESET)
+            self.menu.add_button('Date', pygame_menu.events.RESET)
 
     def menu_off(self):
         self.menu.disable()
