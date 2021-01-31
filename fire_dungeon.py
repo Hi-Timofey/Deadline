@@ -12,7 +12,7 @@ BACKGROUND_COLOR = "#000000"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-FIRE_START = [1, 1]
+FIRE_START = [0, 1]
 PLAYER_START = [1, 3]
 
 
@@ -21,11 +21,13 @@ class FireDungeon():
     def __init__(
             self, level, player, game_width, game_height, fire_speed,
             game_over_func=None, gravity=False, fire_list_coords=None,
-            theme=pygame_menu.themes.THEME_BLUE):
+            theme=pygame_menu.themes.THEME_BLUE, fire_delay=None):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
         self.paused = False
+
+        self.fire_list_coords = []
         # Window size
         self.WIN_SIZE = self.WIN_WIDTH, self.WIN_HEIGHT = game_width, game_height
         # Группируем ширину и высоту в одну переменную
@@ -33,7 +35,16 @@ class FireDungeon():
         # Game
         self.level = level
         self.fire_speed = fire_speed
+
+        # Delay for fire spreading
         self.fire_counter = 0
+
+        # Delay for starting level
+        if fire_delay is None:
+            self.fire_delay = 300
+        else:
+            self.fire_delay = fire_delay
+
         self.game_over_func = game_over_func
         self.platforms = []
         self.seed = 0
@@ -79,21 +90,26 @@ class FireDungeon():
         flag = True
         down = gravity
         self.start = False
-        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
+        # self.level[FIRE_START[0]][FIRE_START[1]] = "!"
         # Image for platforms
         # все анимированные объекты, за исключением героя
         animatedEntities = pygame.sprite.Group()
+        b1, b2 = -1, -1
         for row in self.level:  # вся строка
+            b1 += 1
             for col in row:  # каждый символ
+                b2 += 1
                 self.seed += 1
                 if col == "#":
                     pf = Platform(self.x, self.y)
                     self.entities.add(pf)
                     self.platforms.append(pf)
+
                 if col == "!":
                     bd = BlockDie(self.x, self.y)
                     self.entities.add(bd)
                     self.platforms.append(bd)
+                    self.fire_list_coords.append([b1, b2])
                 if col == "C":
                     pf = ClosedDoor(self.x, self.y)
                     self.entities.add(pf)
@@ -106,6 +122,7 @@ class FireDungeon():
                     pf = Space(self.x, self.y)
                     self.entities.add(pf)
                 self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+            b2 = -1
             self.y += PLATFORM_HEIGHT  # то же самое и с высотой
             self.x = 0  # на каждой новой строчке начинаем с нуля
         running = False
@@ -118,10 +135,14 @@ class FireDungeon():
                     'music')),
             loops=-1)
         self.exit_code = 0
+        self.start_time = 0
+
+
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
             if not self.paused:
-                if self.start:
+                self.start_time += 1
+                if self.start and self.start_time > self.fire_delay:
                     self._fire_cycle()
 
             events = pygame.event.get()

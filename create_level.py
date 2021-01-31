@@ -31,7 +31,6 @@ def generate(matrix, num):
         seed(num)
         step = randint(-2, 2)
         matrix[0][0] = 0
-        old_matrix = deepcopy(matrix)
         if step == 2:
             if 0 <= x + 2 < len(matrix[y]):
                 if matrix[y][x + 2] == 0 and matrix[y][x + 1] == 0:
@@ -93,9 +92,76 @@ def restruct(matrix):
         matrix[_].append(char_border)
     matrix.append([char_border for i in range(width + 2)])
     matrix[1][0] = "C"
-    matrix[len(matrix) - 2][len(matrix[0]) - 1] = "E"
+    flag, flag2, flag3, flag4 = True, True, False, True
+    a = randint(1, 2)
+    if a == 1:
+        print(a)
+        for _ in range(len(matrix) - 1, 1, -1):
+            if flag:
+                for i in range(len(matrix[_]) - 1, 1, -1):
+                    if matrix[_][i] == 0:
+                        a = randint(1, 2)
+                        if a == 1:
+                            matrix[_][i - 3] = "E"
+                        elif a == 2:
+                            matrix[_ + 1][i] = "E"
+                        flag = False
+                        break
+        for _ in range(len(matrix) - 1):
+            if flag3:
+                for i in range(len(matrix[_]) - 1, 1, -1):
+                    if matrix[_][i] == 0:
+                        a = randint(1, 2)
+                        if a == 1:
+                            matrix[_][i - 1] = "!"
+                        elif a == 2:
+                            matrix[_ + 1][i] = "!"
+                        flag3 = False
+                        break
+
+    elif a == 2:
+        print(a)
+        for _ in range(len(matrix) - 1, 1, -1):
+            if flag2:
+                for i in range(len(matrix[_])):
+                    print()
+                    if matrix[_][i] == 0:
+                        print(matrix[_ + 1][i - 2], matrix[_ + 1][i - 2])
+                        a = randint(1, 2)
+                        if a == 1:
+                            matrix[_ + 1][i] = "E"
+                            print(a)
+                        elif a == 2:
+                            matrix[_ + 1][i + 2] = "E"
+                            print(a)
+                        flag2 = False
+                        break
+        for _ in range(len(matrix) - 1, 1, -1):
+            if flag3:
+                for i in range(len(matrix[_]) - 1, 1, -1):
+                    if matrix[_][i] == 0:
+                        a = randint(1, 2)
+                        if a == 1:
+                            matrix[_][i - 1] = "!"
+                        elif a == 2:
+                            matrix[_ - 1][i] = "!"
+                        flag3 = False
+                        break
+    for _ in range(len(matrix)):
+        if flag4:
+            for i in range(len(matrix[_])):
+                if matrix[_][i] == 0:
+                    a = randint(1, 2)
+                    if a == 1:
+                        matrix[_][i] = "!"
+                    elif a == 2:
+                        matrix[_][i] = "!"
+                    flag4 = False
+                    break
+
+    # matrix[len(matrix) - 2][len(matrix[0]) - 1] = "E"
     matrix[1][2], matrix[1][3], matrix[1][4] = 0, 0, 0
-    matrix[2][1], matrix[2][2], matrix[2][3],  matrix[1][4] = 0, 0, 0, 0
+    matrix[2][1], matrix[2][2], matrix[2][3], matrix[1][4] = 0, 0, 0, 0
     # print(matrix)
     return matrix
 

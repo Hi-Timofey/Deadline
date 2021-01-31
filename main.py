@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import fire_dungeon
-import json, datetime
+import json
+import datetime
 from credits import Credits
 import pygame
 import pygame_menu
@@ -8,7 +9,7 @@ from db_related import Scores, Saves
 from utils import *
 from create_level import create_level
 from player import Player
-
+from random import randint
 
 pygame.mixer.pre_init()
 pygame.init()
@@ -106,6 +107,14 @@ def start_game(save=None):
         fire_list_coords = save['fire_coords']
     else:
         fire_list_coords = None
+
+
+    # Fire delay
+    if save is not None:
+        fire_delay = 0
+    else:
+        fire_delay = None
+
     while game:
 
         player = Player(
@@ -121,11 +130,15 @@ def start_game(save=None):
             level = save['level']
 
         fire_dungeon_lvl = fire_dungeon.FireDungeon(
-            level,
-            player, g_width, g_height, fire_speed, theme=fd_theme, fire_list_coords=fire_list_coords)
+            level, player, g_width, g_height, fire_speed, theme=fd_theme,
+            fire_list_coords=fire_list_coords, fire_delay=fire_delay)
 
+        # After finishing loaded level need to set defult values for next
+        # levels
         if save is not None:
             save = None
+            player_x = 32
+            player_y = 96
 
         result = fire_dungeon_lvl.run_game(False)
 
@@ -153,7 +166,7 @@ def start_game(save=None):
             time = datetime.datetime.now().time()
             save = {
                 # Time of saving
-                f'date':f'{date}_{str(time)[:8]}',
+                f'date': f'{date}_{str(time)[:8]}',
                 # Data to create level
                 'level_num': LEVEL,
                 'level_width': level_width, 'level_height': level_height,
@@ -170,13 +183,11 @@ def start_game(save=None):
                 'player_y': player.rect.y
             }
 
-
             with open(f'saves/{ save["date"] }.json', 'w') as f:
                 json.dump(save, f, ensure_ascii=False,
-                    indent=2, sort_keys=True)
+                          indent=2, sort_keys=True)
 
             print(save)
-
 
             # saves_menu.add_save_by_dict(result)
 
@@ -219,6 +230,7 @@ def main():
         # Credits(credit_list, surface, 'Sigma Five.otf').main()
         pygame.display.update()
 
+
 def start_game_from_save(*args, **kwargs):
 
     print(args, kwargs)
@@ -240,7 +252,10 @@ def create_main_menu():
     scores_menu.menu.set_onclose(create_main_menu)
 
     # Table of SAVES
-    saves_menu = Saves(int(window_width/1.3), int(window_height/1.3), start_game, fd_theme)
+    saves_menu = Saves(
+        int(window_width / 1.3),
+        int(window_height / 1.3),
+        start_game, fd_theme)
 
     # breakpoint()
     # saves_menu.get_all_data()
