@@ -18,8 +18,10 @@ PLAYER_START = [1, 3]
 
 class FireDungeon():
 
-    def __init__(self, level, player, game_width, game_height, fire_speed,
-                 game_over_func=None, gravity=False, theme=pygame_menu.themes.THEME_BLUE):
+    def __init__(
+            self, level, player, game_width, game_height, fire_speed,
+            game_over_func=None, gravity=False, fire_list_coords=None,
+            theme=pygame_menu.themes.THEME_BLUE, fire_delay=None):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
@@ -33,13 +35,26 @@ class FireDungeon():
         # Game
         self.level = level
         self.fire_speed = fire_speed
+
+        # Delay for fire spreading
         self.fire_counter = 0
+
+        # Delay for starting level
+        if fire_delay is None:
+            self.fire_delay = 300
+        else:
+            self.fire_delay = fire_delay
+
         self.game_over_func = game_over_func
         self.platforms = []
         self.seed = 0
         self.x = self.y = 0  # координаты
         self.player = player
         self.entities.add(self.player)
+        if fire_list_coords is not None:
+            self.fire_list_coords = fire_list_coords
+        else:
+            self.fire_list_coords = [FIRE_START]
         # Высчитываем фактическую ширину уровня
         self.total_level_width = len(self.level[0]) * PLATFORM_WIDTH
         self.total_level_height = len(self.level) * PLATFORM_HEIGHT  # высоту
@@ -121,11 +136,13 @@ class FireDungeon():
             loops=-1)
         self.exit_code = 0
         self.start_time = 0
+
+
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
             if not self.paused:
                 self.start_time += 1
-                if self.start and self.start_time > 300:
+                if self.start and self.start_time > self.fire_delay:
                     self._fire_cycle()
 
             events = pygame.event.get()
@@ -216,17 +233,22 @@ class FireDungeon():
     def _return_game_val(self):
         '''
         Function for saving the game status
-
-        Эта функция должна ставитьв переменную exit_code
-        все необходимые данные из самой себя для переадачи их
-        в базу сохранений, чтобы потом можно было
-        загрузить это же состояние уровня занов
-
-        Код должен кончаться вот так
-        self.exit_code = [ data ,data, ...]
-        Комментарии подлежат удалению после реализации
         '''
-        self.exit_code = None
+
+        self.exit_code = 7
+        self.run = False
+
+    def set_specific_state(self, values):
+        pass
+        # for key in values:
+        #     if key == 'player':
+        #         self.player = values[key]
+        #     elif key == 'fire_coords':
+        #         self.player = values[key]
+        #     elif key == 'level':
+        #         self.player = values[key]
+        #     elif key == 'seed':
+        #         self.player = values[key]
 
     def _continue_game(self):
         self.paused = False
@@ -275,6 +297,9 @@ class FireDungeon():
         top = min(0, top)
 
         return Rect(left, top, width, height)
+
+    def get_level(self):
+        return self.level
 
 
 if __name__ == "__main__":
