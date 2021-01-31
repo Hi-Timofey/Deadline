@@ -274,7 +274,7 @@ class Saves():
         return response
 
     def add_new_save(self, save):
-        with open(f'saves/{ save["date"] }.json', 'w') as f:
+        with open(f'{self.path_to_saves}/{ save["date"] }.json', 'w') as f:
             json.dump(save, f, ensure_ascii=False,
                         indent=2, sort_keys=True)
 
