@@ -118,18 +118,22 @@ def start_the_game_from_menu():
             date = datetime.date.today()
             time = datetime.datetime.now().time()
             save = {
+                # Time of saving
                 f'date':f'{date}_{str(time)[:8]}',
                 # Data to create level
                 'level_num': LEVEL,
                 'level_width': level_width, 'level_height': level_height,
-                'fire_coords': fire_dungeon_lvl.fire_list_coords,
-                'seed' : fire_dungeon_lvl.seed,
+                'level': fire_dungeon_lvl.get_level(),
+                # 'fire_coords': fire_dungeon_lvl.fire_list_coords,
+                # 'seed' : fire_dungeon_lvl.seed,
 
                 # Player information
                 'gravity': gravity,
                 'fire_speed': fire_speed,
                 'player_mv': player_mv,
                 'player_mv_extra': player_mv_extra,
+                'player_x': player.rect.x,
+                'player_y': player.rect.y
             }
 
 

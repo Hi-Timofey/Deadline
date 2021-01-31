@@ -274,6 +274,9 @@ class FireDungeon():
 
         return Rect(left, top, width, height)
 
+    def get_level(self):
+        return self.level
+
 
 if __name__ == "__main__":
     pygame.mixer.init()
