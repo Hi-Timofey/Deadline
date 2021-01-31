@@ -12,7 +12,7 @@ BACKGROUND_COLOR = "#000000"
 PLATFORM_WIDTH = 32
 PLATFORM_HEIGHT = 32
 PLATFORM_COLOR = "#FF6262"
-FIRE_START = [1, 1]
+FIRE_START = [0, 1]
 PLAYER_START = [1, 3]
 
 
@@ -24,6 +24,8 @@ class FireDungeon():
         self.entities = pygame.sprite.Group()  # Все объекты
         self.run = True
         self.paused = False
+
+        self.fire_list_coords = []
         # Window size
         self.WIN_SIZE = self.WIN_WIDTH, self.WIN_HEIGHT = game_width, game_height
         # Группируем ширину и высоту в одну переменную
@@ -73,21 +75,26 @@ class FireDungeon():
         flag = True
         down = gravity
         self.start = False
-        self.level[FIRE_START[0]][FIRE_START[1]] = "!"
+        # self.level[FIRE_START[0]][FIRE_START[1]] = "!"
         # Image for platforms
         # все анимированные объекты, за исключением героя
         animatedEntities = pygame.sprite.Group()
+        b1, b2 = -1, -1
         for row in self.level:  # вся строка
+            b1 += 1
             for col in row:  # каждый символ
+                b2 += 1
                 self.seed += 1
                 if col == "#":
                     pf = Platform(self.x, self.y)
                     self.entities.add(pf)
                     self.platforms.append(pf)
+
                 if col == "!":
                     bd = BlockDie(self.x, self.y)
                     self.entities.add(bd)
                     self.platforms.append(bd)
+                    self.fire_list_coords.append([b1, b2])
                 if col == "C":
                     pf = ClosedDoor(self.x, self.y)
                     self.entities.add(pf)
@@ -100,10 +107,10 @@ class FireDungeon():
                     pf = Space(self.x, self.y)
                     self.entities.add(pf)
                 self.x += PLATFORM_WIDTH  # блоки платформы ставятся на ширине блоков
+            b2 = -1
             self.y += PLATFORM_HEIGHT  # то же самое и с высотой
             self.x = 0  # на каждой новой строчке начинаем с нуля
         running = False
-        self.fire_list_coords = [FIRE_START]
 
         pygame.mixer.Channel(0).set_volume(0.85)
         pygame.mixer.Channel(0).play(
@@ -113,10 +120,12 @@ class FireDungeon():
                     'music')),
             loops=-1)
         self.exit_code = 0
+        self.start_time = 0
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
             if not self.paused:
-                if self.start:
+                self.start_time += 1
+                if self.start and self.start_time > 300:
                     self._fire_cycle()
 
             events = pygame.event.get()

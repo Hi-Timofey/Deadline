@@ -7,7 +7,7 @@ from db_related import Scores
 from utils import *
 from create_level import create_level
 from player import Player
-
+from random import randint
 
 pygame.mixer.pre_init()
 pygame.init()
@@ -63,7 +63,7 @@ def start_the_game_from_menu():
     # TODO Music
     pygame.mixer.Channel(3).pause()
     surface.fill((0, 0, 0))
-    LEVEL = 1
+    LEVEL = randint(1,1000)
     gravity = False
     # Changing values
 
