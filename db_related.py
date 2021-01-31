@@ -21,7 +21,7 @@ class FireDB():
             self.create_default_base()
 
         self.create_menu()
-    # --- DATABASE ---
+
 
     def create_default_table(self):
         '''
@@ -41,13 +41,6 @@ class FireDB():
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
         '''
-        # query_table += '''
-        # CREATE TABLE "scores" (
-        # "id"	INTEGER NOT NULL UNIQUE,
-        # "score"	INTEGER NOT NULL DEFAULT 0,
-        # "data"	TEXT NOT NULL DEFAULT '01.01.2021 13:00',
-        # PRIMARY KEY("score")
-        #         );'''
         self.cur.execute(query_table)
         self.db_connect.commit()
         self._stop()
@@ -171,6 +164,7 @@ class Scores(FireDB):
         self._stop()
         self.create_menu()
         self.menu.full_reset()
+
         # Just hides the lbl from player view
         for score in self.scores_lbl:
             score.hide()
@@ -257,9 +251,9 @@ class Saves():
         for save_path in saves_path:
            os.remove(f'{self.path_to_saves}{save_path}')
 
-        # TODO mb shouldn't
         self.create_menu()
         self.menu.full_reset()
+
         # Just hides the lbl from player view
         for save in self.saves_lbl:
             save.hide()
@@ -275,6 +269,11 @@ class Saves():
                 response.append(json.load(save_file))
 
         return response
+
+    def add_new_save(self, save):
+        with open(f'saves/{ save["date"] }.json', 'w') as f:
+            json.dump(save, f, ensure_ascii=False,
+                        indent=2, sort_keys=True)
 
 
 

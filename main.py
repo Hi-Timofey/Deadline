@@ -54,6 +54,8 @@ def start_game(save=None):
 
     global game, main_menu, saves_menu
     game = True
+
+    # Music
     pygame.mixer.Channel(4).set_volume(0.75)
     pygame.mixer.Channel(4).play(
         pygame.mixer.Sound(
@@ -62,58 +64,44 @@ def start_game(save=None):
                 'music')),
         loops=-1)
 
-    # TODO Music
     pygame.mixer.Channel(3).pause()
     surface.fill((0, 0, 0))
+
+    # Level number
     LEVEL = 1
-
-    if save is not None:
-        LEVEL = save['level_num']
-
-    gravity = False
-    if save is not None:
-        gravity = save['gravity']
-    # Changing values
-
     # Maze parameters (X * Y)
     level_width = 15
     level_height = 15
-    if save is not None:
-        level_width = save['level_width']
-        level_height = save['level_height']
 
-    # FIRE SPEED
+    # FIRE
     fire_speed = 80
-    if save is not None:
-        fire_speed = save['fire_speed']
+    fire_list_coords = None
+    fire_delay = 227 + 1
 
     # PLAYER MOVEMENT
     player_mv = 1
     player_mv_extra = 2
-    if save is not None:
-        player_mv = save['player_mv']
-        player_mv_extra = save['player_mv_extra']
 
-    # Player coords
+    # Player
+    gravity = False
     player_x = 32
     player_y = 96
-    if save is not None:
-        player_x = save['player_x']
-        player_y = save['player_y']
 
     fire_dungeon_lvl = None
 
+    # Loading save if it exists
     if save is not None:
+        LEVEL = save['level_num']
+        gravity = save['gravity']
+        level_width = save['level_width']
+        level_height = save['level_height']
+        fire_speed = save['fire_speed']
+        player_mv = save['player_mv']
+        player_mv_extra = save['player_mv_extra']
+        player_x = save['player_x']
+        player_y = save['player_y']
         fire_list_coords = save['fire_coords']
-    else:
-        fire_list_coords = None
-
-
-    # Fire delay
-    if save is not None:
         fire_delay = 0
-    else:
-        fire_delay = None
 
     while game:
 
@@ -139,6 +127,7 @@ def start_game(save=None):
             save = None
             player_x = 32
             player_y = 96
+            fire_delay = 227 + 1
 
         result = fire_dungeon_lvl.run_game(False)
 
@@ -182,18 +171,15 @@ def start_game(save=None):
                 'player_x': player.rect.x,
                 'player_y': player.rect.y
             }
+            saves_menu.add_new_save(save)
 
-            with open(f'saves/{ save["date"] }.json', 'w') as f:
-                json.dump(save, f, ensure_ascii=False,
-                          indent=2, sort_keys=True)
 
-            print(save)
-
-            # saves_menu.add_save_by_dict(result)
-
+        # Reseting menu if player want to clear it
+        saves_menu.menu.full_reset()
         scores_menu.menu.full_reset()
         main_menu.full_reset()
         create_main_menu()
+
     del fire_dungeon_lvl
     del player
     if not game:
@@ -227,7 +213,6 @@ def main():
             draw_background()
             main_menu.draw(surface)
 
-        # Credits(credit_list, surface, 'Sigma Five.otf').main()
         pygame.display.update()
 
 
@@ -256,9 +241,6 @@ def create_main_menu():
         int(window_width / 1.3),
         int(window_height / 1.3),
         start_game, fd_theme)
-
-    # breakpoint()
-    # saves_menu.get_all_data()
 
     main_menu.add_button('Play', start_game)
     main_menu.add_button('Scores', scores_menu.menu)
