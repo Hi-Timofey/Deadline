@@ -179,6 +179,9 @@ class Saves():
         self.load_save_func = load_save_func
         self.menu = None
         self.path_to_saves = 'saves/'
+        # Creating dir saves
+        if not os.path.isdir(self.path_to_saves):
+            os.makedirs(self.path_to_saves)
 
         self.create_menu()
 
