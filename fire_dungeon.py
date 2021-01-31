@@ -20,7 +20,7 @@ class FireDungeon():
 
     def __init__(
             self, level, player, game_width, game_height, fire_speed,
-            game_over_func=None, gravity=False,
+            game_over_func=None, gravity=False, fire_list_coords=None,
             theme=pygame_menu.themes.THEME_BLUE):
         self.timer = pygame.time.Clock()
         self.entities = pygame.sprite.Group()  # Все объекты
@@ -40,6 +40,10 @@ class FireDungeon():
         self.x = self.y = 0  # координаты
         self.player = player
         self.entities.add(self.player)
+        if fire_list_coords is not None:
+            self.fire_list_coords = fire_list_coords
+        else:
+            self.fire_list_coords = [FIRE_START]
         # Высчитываем фактическую ширину уровня
         self.total_level_width = len(self.level[0]) * PLATFORM_WIDTH
         self.total_level_height = len(self.level) * PLATFORM_HEIGHT  # высоту
@@ -105,7 +109,6 @@ class FireDungeon():
             self.y += PLATFORM_HEIGHT  # то же самое и с высотой
             self.x = 0  # на каждой новой строчке начинаем с нуля
         running = False
-        self.fire_list_coords = [FIRE_START]
 
         pygame.mixer.Channel(0).set_volume(0.85)
         pygame.mixer.Channel(0).play(

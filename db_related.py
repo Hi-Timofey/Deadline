@@ -1,4 +1,5 @@
 import os
+import json
 import sqlite3 as sql
 import pygame
 import pygame_menu
@@ -92,15 +93,20 @@ class Scores(FireDB):
             scores_lbl = []
             self.menu.add_label('Score', max_char=-1, font_size=22)
             for d in data:
-                scores_lbl.append(self.menu.add_label(d[0], max_char=-1, font_size=30))
+                scores_lbl.append(
+                    self.menu.add_label(
+                        d[0], max_char=-1, font_size=30))
 
             self.menu.add_button('Quit', pygame_menu.events.RESET)
 
             self.menu.add_label('Date', max_char=-1, font_size=22)
             for d in data:
-                scores_lbl.append(self.menu.add_label(d[1], max_char=-1, font_size=30))
+                scores_lbl.append(
+                    self.menu.add_label(
+                        d[1], max_char=-1, font_size=30))
 
-            self.clear_btn = self.menu.add_button('Clear', self.delete_all_scores)
+            self.clear_btn = self.menu.add_button(
+                'Clear', self.delete_all_scores)
             self.scores_lbl = scores_lbl
 
         else:
@@ -170,86 +176,106 @@ class Scores(FireDB):
             score.hide()
 
 
+class Saves():
 
+    def __init__(self, width, height,load_save_func, theme=None):
+        self.width = width
+        self.height = height
+        self.theme = theme
+        self.load_save_func = load_save_func
+        self.menu = None
+        self.path_to_saves = 'saves/'
 
-class Saves(FireDB):
+        self.create_menu()
 
     def create_menu(self):
-        pass
-        # data = self.get_all_data(ordered=True)
-        # data_length = len(data)
-        # if self.theme is None:
-        #     self.theme = pygame_menu.themes.THEME_BLUE
-        # if data_length > 0:
-        #     self.menu = pygame_menu.Menu(
-        #         self.height,
-        #         self.width,
-        #         'Dungeon Scores ',
-        #         theme=self.theme,
-        #         columns=2,
-        #         onclose=pygame_menu.events.EXIT,
-        #         rows=2 + data_length)
+        data = self.get_all_data()
+        data_length = len(data)
 
-        #     scores_lbl = []
-        #     self.menu.add_label('Score', max_char=-1, font_size=22)
-        #     for d in data:
-        #         scores_lbl.append(self.menu.add_label(d[0], max_char=-1, font_size=30))
+        if self.theme is None:
+            self.theme = pygame_menu.themes.THEME_BLUE
 
-        #     self.menu.add_button('Quit', pygame_menu.events.RESET)
+        if data_length > 0:
 
-        #     self.menu.add_label('Date', max_char=-1, font_size=22)
-        #     for d in data:
-        #         scores_lbl.append(self.menu.add_label(d[1], max_char=-1, font_size=30))
+            self.menu = pygame_menu.Menu(
+                self.height,
+                self.width,
+                'Saves',
+                theme=self.theme,
+                columns=2,
+                onclose=pygame_menu.events.EXIT,
+                rows=2 + data_length)
 
-        #     self.clear_btn = self.menu.add_button('Clear', self.delete_all_scores)
-        #     self.scores_lbl = scores_lbl
+            saves_lbl = []
 
-        # else:
-        #     self.menu = pygame_menu.Menu(
-        #         self.height,
-        #         self.width,
-        #         'Dungeon Scores ',
-        #         theme=self.theme,
-        #         columns=2,
-        #         onclose=pygame_menu.events.EXIT,
-        #         rows=2)
-        #     self.menu.add_label('Score', max_char=-1, font_size=28)
-        #     self.menu.add_button('No', pygame_menu.events.RESET)
-        #     self.menu.add_label('Records', max_char=-1, font_size=28)
-        #     self.menu.add_button('Date', pygame_menu.events.RESET)
+
+            self.menu.add_label('Level', max_char=-1, font_size=22)
+
+            for d in data:
+                saves_lbl.append(
+                    self.menu.add_button(
+                        d['level_num'] , self.load_save_func, d, max_char=-1, font_size=30))
+
+
+            self.clear_btn = self.menu.add_button(
+                'Clear', self.delete_all_saves)
+            self.menu.add_label('Date', max_char=-1, font_size=22)
+
+            for d in data:
+                saves_lbl.append(
+                    self.menu.add_label(
+                        d['date'], max_char=-1, font_size=30))
+
+            self.menu.add_button('Quit', pygame_menu.events.RESET)
+
+            self.saves_lbl = saves_lbl
+        else:
+            self.menu = pygame_menu.Menu(
+                self.height,
+                self.width,
+                'Saves',
+                theme=self.theme,
+                columns=2,
+                onclose=pygame_menu.events.EXIT,
+                rows=2 )
+
+
+
+            self.menu.add_label('Level', max_char=-1, font_size=22)
+
+            self.menu.add_button('No', pygame_menu.events.RESET)
+
+            self.menu.add_label('Date', max_char=-1, font_size=22)
+
+
+            self.menu.add_button('Data', pygame_menu.events.RESET)
+
+
+    def delete_all_saves(self):
+        saves_path = os.listdir(self.path_to_saves)[::-1]
+
+        for save_path in saves_path:
+           os.remove(f'{self.path_to_saves}{save_path}')
+
+        # TODO mb shouldn't
+        self.create_menu()
+        self.menu.full_reset()
+        # Just hides the lbl from player view
+        for save in self.saves_lbl:
+            save.hide()
 
 
     def get_all_data(self, ordered=True):
-        pass
-        # self._start()
+        response = []
 
-        # if ordered:
-        #     response = self.cur.execute(
-        #         '''select distinct score, data from scores
-        #                             order by score asc''').fetchall()
-        # else:
-        #     response = self.cur.execute(
-        #         'select distinct score, data from scores').fetchall()
+        saves_path = os.listdir(self.path_to_saves)[::-1]
 
-        # self._stop()
-        # return response
+        for save_path in saves_path:
+            with open(f'{self.path_to_saves}{save_path}') as save_file:
+                response.append(json.load(save_file))
 
-    def add_score(self, score, date):
-        pass
-        # self._start()
-        # self.cur.execute(f"insert into scores values({int(score)}, '{date}')")
-        # self.db_connect.commit()
-        # self._stop()
+        return response
 
-    def delete_all_scores(self):
-        pass
-        # self._start()
-
-        # query = f"delete from scores"
-        # self.cur.execute(query)
-
-        # self.db_connect.commit()
-        # self._stop()
 
 
 if __name__ == '__main__':
