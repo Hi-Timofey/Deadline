@@ -1,3 +1,4 @@
+from pathlib import  Path
 import os
 import json
 import sqlite3 as sql
@@ -178,7 +179,7 @@ class Saves():
         self.theme = theme
         self.load_save_func = load_save_func
         self.menu = None
-        self.path_to_saves = 'saves/'
+        self.path_to_saves = 'saves'
         # Creating dir saves
         if not os.path.isdir(self.path_to_saves):
             os.makedirs(self.path_to_saves)
@@ -252,7 +253,8 @@ class Saves():
         saves_path = os.listdir(self.path_to_saves)[::-1]
 
         for save_path in saves_path:
-           os.remove(f'{self.path_to_saves}{save_path}')
+            path = Path(f'{self.path_to_saves}', f"{save_path}")
+            os.remove(path)
 
         self.create_menu()
         self.menu.full_reset()
@@ -268,13 +270,18 @@ class Saves():
         saves_path = os.listdir(self.path_to_saves)[::-1]
 
         for save_path in saves_path:
-            with open(f'{self.path_to_saves}{save_path}') as save_file:
+            path = Path(f'{self.path_to_saves}', f"{save_path}")
+            with open(path) as save_file:
                 response.append(json.load(save_file))
 
         return response
 
     def add_new_save(self, save):
-        with open(f'{self.path_to_saves}/{ save["date"] }.json', 'w') as f:
+        import sys
+        from pathlib import Path
+        date = save["date"].replace(':', '_')
+        path = Path(f'{self.path_to_saves}', f"{date}.json")
+        with open(path, 'w') as f:
             json.dump(save, f, ensure_ascii=False,
                         indent=2, sort_keys=True)
 
