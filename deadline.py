@@ -16,7 +16,7 @@ FIRE_START = [0, 1]
 PLAYER_START = [1, 3]
 
 
-class FireDungeon():
+class Deadline():
 
     def __init__(
             self, level, player, game_width, game_height, fire_speed,
@@ -80,7 +80,7 @@ class FireDungeon():
         '''
         # Initialize pygame for this level
         self.screen = pygame.display.set_mode(self.WIN_SIZE)
-        pygame.display.set_caption("Fire Dungeon")
+        pygame.display.set_caption("DEADLINE")
         bg = Surface(self.WIN_SIZE)
         bg.fill(Color(BACKGROUND_COLOR))
 
@@ -303,7 +303,7 @@ if __name__ == "__main__":
         gravity=gravity)
 
     level = create_level(31, 31, 1)
-    fire_level = FireDungeon(level, player, 800, 800, 120)
+    fire_level = Deadline(level, player, 800, 800, 120)
     result = fire_level.run_game(gravity=False)
     if result == 2:
         print('-' * 10, 'DIED', '-' * 10)

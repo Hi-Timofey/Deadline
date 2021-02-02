@@ -77,7 +77,7 @@ class Scores(FireDB):
             self.menu = pygame_menu.Menu(
                 self.height,
                 self.width,
-                'Dungeon Scores ',
+                'Deadline Scores ',
                 theme=self.theme,
                 columns=2,
                 onclose=pygame_menu.events.EXIT,
@@ -106,7 +106,7 @@ class Scores(FireDB):
             self.menu = pygame_menu.Menu(
                 self.height,
                 self.width,
-                'Dungeon Scores ',
+                'Deadline Scores ',
                 theme=self.theme,
                 columns=2,
                 onclose=pygame_menu.events.EXIT,

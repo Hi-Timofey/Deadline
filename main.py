@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import fire_dungeon
+import deadline
 import json
 import datetime
 from credits import Credits
@@ -87,7 +87,7 @@ def start_game(save=None):
     player_x = 32
     player_y = 96
 
-    fire_dungeon_lvl = None
+    deadline_lvl = None
 
     # Loading save if it exists
     if save is not None:
@@ -117,7 +117,7 @@ def start_game(save=None):
         else:
             level = save['level']
 
-        fire_dungeon_lvl = fire_dungeon.FireDungeon(
+        deadline_lvl = deadline.Deadline(
             level, player, g_width, g_height, fire_speed, theme=fd_theme,
             fire_list_coords=fire_list_coords, fire_delay=fire_delay)
 
@@ -129,7 +129,7 @@ def start_game(save=None):
             player_y = 96
             fire_delay = 227 + 1
 
-        result = fire_dungeon_lvl.run_game(False)
+        result = deadline_lvl.run_game(False)
 
         if result == 1:
             game = False
@@ -159,9 +159,8 @@ def start_game(save=None):
                 # Data to create level
                 'level_num': LEVEL,
                 'level_width': level_width, 'level_height': level_height,
-                'level': fire_dungeon_lvl.get_level(),
-                'fire_coords': fire_dungeon_lvl.fire_list_coords,
-                # 'seed' : fire_dungeon_lvl.seed,
+                'level': deadline_lvl.get_level(),
+                'fire_coords': deadline_lvl.fire_list_coords,
 
                 # Player information
                 'gravity': gravity,
@@ -179,7 +178,7 @@ def start_game(save=None):
         main_menu.full_reset()
         create_main_menu()
 
-    del fire_dungeon_lvl
+    del deadline_lvl
     del player
     if not game:
         pygame.mixer.Channel(4).stop()
@@ -219,7 +218,7 @@ def create_main_menu():
     global main_menu, scores_menu, saves_menu
 
     # Main menu
-    main_menu = pygame_menu.Menu(300, 300, 'Fire Dungeon',
+    main_menu = pygame_menu.Menu(300, 300, 'Deadline',
                                  theme=fd_theme)
 
     # Table of SCORES
@@ -239,7 +238,7 @@ def create_main_menu():
     main_menu.add_button('Scores', scores_menu.menu)
     main_menu.add_button('Saves', saves_menu.menu)
     credit_list = [
-        "Fire Dungeon - Fire Maze",
+        "Deadline - Fire Maze",
         " ",
         " Menues",
         "Timofey Katkov",
@@ -255,6 +254,7 @@ def create_main_menu():
         "Music",
         "Timofey Katkov, EROZZION Music",
         " ",
+        "P.S. : inspired by all deadlines and fire dungeons",
         "Thanks for playing"
     ]
     c = Credits(credit_list, surface, 'Sigma Five.otf')
