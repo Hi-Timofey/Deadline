@@ -90,8 +90,7 @@ class FireDungeon():
         flag = True
         down = gravity
         self.start = False
-        # self.level[FIRE_START[0]][FIRE_START[1]] = "!"
-        # Image for platforms
+
         # все анимированные объекты, за исключением героя
         animatedEntities = pygame.sprite.Group()
         b1, b2 = -1, -1
@@ -136,7 +135,6 @@ class FireDungeon():
             loops=-1)
         self.exit_code = 0
         self.start_time = 0
-
 
         while self.run:  # Основной цикл программы
             self.timer.tick(60)
@@ -221,10 +219,10 @@ class FireDungeon():
         if self.game_over_func is not None:
             self.game_over_func()
 
-        # 1 - leaved from menu ; 2 - died ; 3 - finished
         pygame.mixer.Channel(0).stop()
         pygame.mixer.Channel(1).stop()
         pygame.mixer.Channel(2).stop()
+        # 1 - leaved from menu ; 2 - died ; 3 - finished
         return self.exit_code
 
     def get_endgame_score(self):
@@ -237,18 +235,6 @@ class FireDungeon():
 
         self.exit_code = 7
         self.run = False
-
-    def set_specific_state(self, values):
-        pass
-        # for key in values:
-        #     if key == 'player':
-        #         self.player = values[key]
-        #     elif key == 'fire_coords':
-        #         self.player = values[key]
-        #     elif key == 'level':
-        #         self.player = values[key]
-        #     elif key == 'seed':
-        #         self.player = values[key]
 
     def _continue_game(self):
         self.paused = False
@@ -303,6 +289,8 @@ class FireDungeon():
 
 
 if __name__ == "__main__":
+    pygame.init()
+    pygame.display.set_mode((800,800))
     pygame.mixer.init()
     gravity = False
     mv = 1

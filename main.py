@@ -173,7 +173,6 @@ def start_game(save=None):
             }
             saves_menu.add_new_save(save)
 
-
         # Reseting menu if player want to clear it
         saves_menu.menu.full_reset()
         scores_menu.menu.full_reset()
@@ -214,12 +213,6 @@ def main():
             main_menu.draw(surface)
 
         pygame.display.update()
-
-
-def start_game_from_save(*args, **kwargs):
-
-    print(args, kwargs)
-    pass
 
 
 def create_main_menu():

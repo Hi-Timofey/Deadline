@@ -1,4 +1,4 @@
-from pathlib import  Path
+from pathlib import Path
 import os
 import json
 import sqlite3 as sql
@@ -22,7 +22,6 @@ class FireDB():
             self.create_default_base()
 
         self.create_menu()
-
 
     def create_default_table(self):
         '''
@@ -173,7 +172,7 @@ class Scores(FireDB):
 
 class Saves():
 
-    def __init__(self, width, height,load_save_func, theme=None):
+    def __init__(self, width, height, load_save_func, theme=None):
         self.width = width
         self.height = height
         self.theme = theme
@@ -206,14 +205,16 @@ class Saves():
 
             saves_lbl = []
 
-
             self.menu.add_label('Level', max_char=-1, font_size=22)
 
             for d in data:
                 saves_lbl.append(
                     self.menu.add_button(
-                        d['level_num'] , self.load_save_func, d, max_char=-1, font_size=30))
-
+                        d['level_num'],
+                        self.load_save_func,
+                        d,
+                        max_char=-1,
+                        font_size=30))
 
             self.clear_btn = self.menu.add_button(
                 'Clear', self.delete_all_saves)
@@ -235,9 +236,7 @@ class Saves():
                 theme=self.theme,
                 columns=2,
                 onclose=pygame_menu.events.EXIT,
-                rows=2 )
-
-
+                rows=2)
 
             self.menu.add_label('Level', max_char=-1, font_size=22)
 
@@ -245,9 +244,7 @@ class Saves():
 
             self.menu.add_label('Date', max_char=-1, font_size=22)
 
-
             self.menu.add_button('Data', pygame_menu.events.RESET)
-
 
     def delete_all_saves(self):
         saves_path = os.listdir(self.path_to_saves)[::-1]
@@ -262,7 +259,6 @@ class Saves():
         # Just hides the lbl from player view
         for save in self.saves_lbl:
             save.hide()
-
 
     def get_all_data(self, ordered=True):
         response = []
@@ -283,8 +279,7 @@ class Saves():
         path = Path(f'{self.path_to_saves}', f"{date}.json")
         with open(path, 'w') as f:
             json.dump(save, f, ensure_ascii=False,
-                        indent=2, sort_keys=True)
-
+                      indent=2, sort_keys=True)
 
 
 if __name__ == '__main__':
@@ -295,7 +290,6 @@ if __name__ == '__main__':
     surface = pygame.display.set_mode((width, height))
 
     menu = Scores(width, height)
-    # menu.set_up(width, height)
     while True:
 
         events = pygame.event.get()

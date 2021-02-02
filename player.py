@@ -115,7 +115,11 @@ class Player(sprite.Sprite):
         self.image = Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
         self.image.fill(Color(PLAYER_COLOR))
         self.image.set_colorkey(Color(PLAYER_COLOR))
-        self.rect = Rect(self.start_x, self.start_y, PLAYER_WIDTH, PLAYER_HEIGHT)
+        self.rect = Rect(
+            self.start_x,
+            self.start_y,
+            PLAYER_WIDTH,
+            PLAYER_HEIGHT)
         self.image.set_colorkey(Color(PLAYER_COLOR))
 
         #        Анимация движения вправо

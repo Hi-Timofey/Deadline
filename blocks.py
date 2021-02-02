@@ -57,12 +57,11 @@ class BlockDie(Platform):
 
 
 class Door(Platform):
-    # TODO DOCS !
-
     def __init__(self, x, y):
         Platform.__init__(self, x, y)
         door = walls_source.subsurface(70, 10, 10, 10)
         self.image = pygame.transform.scale(door, (32, 32))
+
 
 class Space(sprite.Sprite):
     def __init__(self, x, y):
@@ -72,16 +71,12 @@ class Space(sprite.Sprite):
             SPACE_TEXTURES[randint(0, 2)], (32, 32))
         self.rect = Rect(x, y, PLATFORM_WIDTH, PLATFORM_HEIGHT)
 
-class ClosedDoor(Platform):
-    # TODO DOCS !
 
+class ClosedDoor(Platform):
     def __init__(self, x, y):
         Platform.__init__(self, x, y)
         door = walls_source.subsurface(10, 10, 10, 10)
         self.image = pygame.transform.scale(door, (32, 32))
-
-
-
 
 
 class BlockTeleport(Platform):
