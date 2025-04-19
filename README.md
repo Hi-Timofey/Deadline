@@ -18,7 +18,7 @@ For playing our game you have to install Python with project dependencies.
 ## How to use
 Firstly, you need to install all dependencies for Deadline game:
 
-    $ pip3 install -r requirements
+    $ pip3 install -r requirements.txt
 
 Then, you can easily play the game by the following command:
 
